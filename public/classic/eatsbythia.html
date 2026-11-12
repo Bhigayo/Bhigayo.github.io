@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eatsbythia case study · Abdulmalik Olusesi</title>
+<meta name="description" content="How I built online ordering, card payments and a live kitchen dashboard for a home-based food business.">
+<meta property="og:title" content="Eatsbythia case study · Abdulmalik Olusesi">
+<meta property="og:image" content="images/eatsbythia-kitchen.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0d12'/%3E%3Cpath d='M16 6l2.6 6.9L26 13.5l-5.7 4.6L22 25.5 16 21.4 10 25.5l1.7-7.4L6 13.5l7.4-.6z' fill='%23f0b65a'/%3E%3C/svg%3E">
+</head>
+<body class="cs">
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="./">ABDULMALIK OLUSESI</a>
+    <nav class="nav" aria-label="Main">
+      <a href="./#work">Work</a>
+      <a href="./#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="cs-hero">
+    <div class="wrap">
+      <a class="back" href="./#work">← All projects</a>
+      <p class="eyebrow">Case study</p>
+      <h1>Eatsbythia</h1>
+      <p class="lead">Online ordering, card payments and a live kitchen dashboard for a home-based Nigerian food business.</p>
+      <dl class="meta">
+        <div><dt>Role</dt><dd>Sole developer</dd></div>
+        <div><dt>Client</dt><dd>Fathia, Eatsbythia</dd></div>
+        <div><dt>Location</dt><dd>Manchester, UK</dd></div>
+        <div><dt>Status</dt><dd>Deployed</dd></div>
+      </dl>
+      <div class="actions">
+        <a class="btn primary" href="https://bhigayo.github.io/eatsbythia/">Visit the site ↗</a>
+        <a class="btn" href="https://github.com/Bhigayo/eatsbythia">View the code ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap narrow">
+      <h2>The problem</h2>
+      <p>Fathia cooks Nigerian food from home and sells it across Manchester. Customers saw her menu on Snapchat and ordered over WhatsApp, so every order, total and payment had to be handled by hand in her messages.</p>
+      <p>She needed a simple way for customers to order and pay, and one place to see and manage every order on the day, without changing how she talks to her customers.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="narrow">
+        <h2>What I built</h2>
+        <ul>
+          <li><strong>A mobile-first ordering site.</strong> Customers browse today's menu, check allergens, pay by card and follow their order as it moves through each stage.</li>
+          <li><strong>A live kitchen dashboard.</strong> Paid orders appear instantly with a sound alert. Fathia moves each order from confirmed to ready, messages customers on WhatsApp, and sees today's sales.</li>
+          <li><strong>Menu and opening controls.</strong> She can change prices, mark dishes sold out, update allergens and close orders for the day, without touching any code.</li>
+        </ul>
+      </div>
+
+      <div class="shots" style="margin-top:40px">
+        <figure>
+          <img src="images/eatsbythia-kitchen.webp" alt="Kitchen dashboard with four orders at different stages, today's sales of £87 and filters for each stage" width="1600" height="1125" loading="lazy">
+          <figcaption>The kitchen dashboard. All screenshots use test data.</figcaption>
+        </figure>
+        <div class="phone-stack">
+          <figure>
+            <img src="images/eatsbythia-tracking-mobile.webp" alt="Customer order tracker showing an order at the preparing stage" width="780" height="434" loading="lazy">
+            <figcaption>Order tracking on a phone</figcaption>
+          </figure>
+          <figure>
+            <img src="images/eatsbythia-menu-mobile.webp" alt="Mobile menu showing Jollof Rice and Fried Rice with prices and allergens" width="780" height="1560" loading="lazy">
+            <figcaption>Today's menu with allergens</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="narrow">
+        <h2>How an order works</h2>
+        <p>The website is static and hosted on GitHub Pages. Anything that involves money or customer data runs on the server in Supabase Edge Functions, never in the browser.</p>
+      </div>
+      <ol class="flow">
+        <li><strong>Customer checks out</strong>The browser sends dish IDs and quantities, never prices.</li>
+        <li><strong>Server prices the order</strong>A database function looks up today's prices and saves the order as unpaid.</li>
+        <li><strong>Customer pays on Stripe</strong>Stripe's hosted checkout takes the card, so card details never touch my code.</li>
+        <li class="key"><strong>Webhook confirms payment</strong>Stripe tells the server directly. Only this signed message can mark an order as paid.</li>
+        <li><strong>Kitchen is alerted</strong>Supabase Realtime pushes the paid order to Fathia's dashboard with a sound.</li>
+        <li><strong>Customer tracks it</strong>A private link from the payment page shows each stage, with no account needed.</li>
+      </ol>
+      <p class="flow-note">An order the customer abandons at the payment page never reaches the kitchen. Stripe expires it, and the server cancels it.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="narrow">
+        <h2>Key decisions</h2>
+      </div>
+      <div class="decisions">
+        <div class="decision">
+          <h3>The server sets every price</h3>
+          <p>Anything sent from a browser can be edited. Prices are looked up on the server from the menu, so nobody can pay £1 for a £15 platter.</p>
+        </div>
+        <div class="decision">
+          <h3>Only Stripe can mark an order paid</h3>
+          <p>The return to the site after payment is only for the customer. Payment is confirmed by a signed webhook, and if saving fails, the server asks Stripe to retry so no paid order goes missing.</p>
+        </div>
+        <div class="decision">
+          <h3>Customer data stays private</h3>
+          <p>Row-level security means only Fathia's login can read orders. Customers track an order with a private token, or their order number and phone number, and never see anyone else's details.</p>
+        </div>
+        <div class="decision">
+          <h3>Opening hours are enforced on the server</h3>
+          <p>The cut-off time and "close orders" switch are checked in UK time on the server, so a customer can't order after closing by leaving a page open.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap narrow">
+      <h2>How it evolved</h2>
+      <ol class="timeline">
+        <li><strong>Prototype</strong>A single HTML file using the browser's storage to fake a live connection between the customer and kitchen views.</li>
+        <li><strong>Real database</strong>Moved to Supabase, with real-time updates between phones and a hosted build through GitHub Actions.</li>
+        <li><strong>Card payments</strong>Added Stripe Checkout and a webhook, so orders only reach the kitchen once they're paid.</li>
+        <li><strong>Security review</strong>Found that the public order lookup could expose customer details, and that the payment functions failed on start-up. I locked down database access, rebuilt order tracking and fixed both.</li>
+        <li><strong>End-to-end testing</strong>Tested paid, abandoned and closed-hours orders in Stripe test mode before launch.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap narrow">
+      <h2>What I learned</h2>
+      <ul>
+        <li><strong>Working code isn't the same as safe code.</strong> The first version worked, but a security review showed how much customer data a public key could reach.</li>
+        <li><strong>The browser can't be trusted.</strong> Prices, payments and opening hours all have to be decided on the server.</li>
+        <li><strong>Test the whole journey.</strong> Each part worked alone, but only a full test order proved the system worked.</li>
+      </ul>
+      <h2 style="margin-top:48px">What's next</h2>
+      <p>Delivery fees and a refund button in the kitchen dashboard.</p>
+      <div class="next">
+        <a class="btn" href="./#work">← Back to projects</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">© 2026 Abdulmalik Olusesi</div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abdulmalik Olusesi · Software Engineer</title>
+<meta name="description" content="Software Engineering student at Birmingham City University building web apps, payment systems and browser games.">
+<meta property="og:title" content="Abdulmalik Olusesi · Software Engineer">
+<meta property="og:description" content="Web apps, payment systems and browser games, built for real people.">
+<meta property="og:image" content="images/eatsbythia-kitchen.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0d12'/%3E%3Cpath d='M16 6l2.6 6.9L26 13.5l-5.7 4.6L22 25.5 16 21.4 10 25.5l1.7-7.4L6 13.5l7.4-.6z' fill='%23f0b65a'/%3E%3C/svg%3E">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="./">ABDULMALIK OLUSESI</a>
+    <nav class="nav" aria-label="Main">
+      <a href="#work">Work</a>
+      <a href="#about" class="hide-sm">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-label="Introduction">
+    <canvas id="stars" aria-hidden="true"></canvas>
+    <div class="wrap hero-content">
+      <p class="eyebrow">Software Engineering · Birmingham City University</p>
+      <h1>I build software people <em>actually use.</em></h1>
+      <p class="lead">I'm Abdulmalik, a software engineering student in Birmingham. I build web apps, payment systems and browser games, usually for a real business or a real problem.</p>
+      <div class="actions">
+        <a class="btn primary" href="#work">See my work</a>
+        <a class="btn" href="https://github.com/Bhigayo">GitHub</a>
+      </div>
+    </div>
+    <p class="hint" aria-hidden="true">move your cursor across the stars</p>
+  </section>
+
+  <section id="work">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Selected work</p>
+        <h2>Projects</h2>
+      </div>
+
+      <div class="projects">
+        <article class="project">
+          <div class="project-media">
+            <img src="images/eatsbythia-kitchen.webp" alt="Eatsbythia kitchen dashboard showing four orders, today's sales and order status filters" width="1600" height="1125" loading="lazy">
+          </div>
+          <div class="project-body">
+            <span class="status live">Live</span>
+            <h3>Eatsbythia</h3>
+            <p>Online ordering, card payments and a live kitchen dashboard for a home-based Nigerian food business in Manchester.</p>
+            <ul class="tags" aria-label="Technologies">
+              <li>JavaScript</li><li>Supabase</li><li>PostgreSQL</li><li>Stripe</li><li>Deno</li><li>GitHub Actions</li>
+            </ul>
+            <div class="project-links">
+              <a class="link-arrow" href="eatsbythia.html">Read the case study →</a>
+              <a class="link-arrow" href="https://bhigayo.github.io/eatsbythia/">Visit the site ↗</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="project">
+          <div class="project-media">
+            <img src="images/saldo-overview.webp" alt="Saldo dashboard showing £902.33 safe to spend, a daily allowance and the next payday" width="1600" height="1075" loading="lazy">
+          </div>
+          <div class="project-body">
+            <span class="status live">Live</span>
+            <h3>Saldo</h3>
+            <p>A personal finance app that answers one question: how much can I safely spend until payday? It works offline and installs on a phone.</p>
+            <ul class="tags" aria-label="Technologies">
+              <li>React</li><li>TypeScript</li><li>Vitest</li><li>PWA</li><li>GitHub Actions</li>
+            </ul>
+            <div class="project-links">
+              <a class="link-arrow" href="saldo.html">Read the case study →</a>
+              <a class="link-arrow" href="https://bhigayo.github.io/saldo/">Try the app ↗</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="project">
+          <div class="project-media">
+            <div class="placeholder-art"><span>Digbeth · Birmingham</span></div>
+          </div>
+          <div class="project-body">
+            <span class="status">In progress</span>
+            <h3>Birmingham crime drama <span style="font-size:.6em;color:var(--muted)">(working title)</span></h3>
+            <p>A story-driven 3D open-world game that runs in the browser, set in Birmingham's Digbeth. It has multiplayer, driving and a story told through missions.</p>
+            <ul class="tags" aria-label="Technologies">
+              <li>React</li><li>TypeScript</li><li>Three.js</li><li>React Three Fiber</li><li>Blender</li>
+            </ul>
+            <div class="project-links">
+              <span style="color:var(--muted);font-size:14px">Playable demo coming soon</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">About</p>
+        <h2>Engineer and founder</h2>
+      </div>
+      <div class="about-grid">
+        <div>
+          <p>I'm studying <strong>BSc Software Engineering at Birmingham City University</strong>, after a Level 3 in Software Development at Bradford College.</p>
+          <p>I also run <strong>Metic Apparel</strong>, my own clothing brand. Running a business taught me to build what people need, ship it, and keep it working after launch.</p>
+          <p>I like projects with real users, whether that's a business taking payments or friends playing a game together.</p>
+        </div>
+        <ul class="facts">
+          <li><span>Studying</span><span>BSc Software Engineering, BCU</span></li>
+          <li><span>Previously</span><span>Level 3 Software Development, D*DD</span></li>
+          <li><span>Building with</span><span>TypeScript, React, SQL, Supabase</span></li>
+          <li><span>Based in</span><span>Birmingham, UK</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact">
+    <div class="wrap">
+      <p class="eyebrow">Contact</p>
+      <h2>Let's talk.</h2>
+      <p>I'm open to placements, internships and part-time roles. The quickest way to reach me is by email.</p>
+      <div class="actions">
+        <a class="btn primary" href="mailto:abdulmalikayomide40@gmail.com">abdulmalikayomide40@gmail.com</a>
+        <a class="btn" href="https://github.com/Bhigayo">GitHub</a>
+        <a class="btn" href="https://www.linkedin.com/in/YOUR-LINKEDIN">LinkedIn</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">© 2026 Abdulmalik Olusesi</div>
+</footer>
+
+<script src="stars.js"></script>
+</body>
+</html>
