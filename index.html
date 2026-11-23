@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abdulmalik OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Pixelify+Sans:wght@400;600;700&family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+/* VOICE: a 1990s personal computer that belongs to a software engineering student, a little cheeky.
+   IDEA: the portfolio is the computer itself: power it on, watch it boot, open projects as apps.
+   PICTURE: a glowing CRT: BIOS text, a loading splash, then a teal desktop with chunky windows and pixel icons.
+   COLOUR/TYPE: phosphor green or amber on black for system text; teal desk, cream windows, ink borders; VT323 + Pixelify Sans.
+   LAYOUT: full-screen screen; menu bar on top, icons down the left, windows float; on phones windows open full width. */
+:root{color-scheme:dark;--ph:#5cff8a;--desk:#1f7a78;--desk2:#17605e;--win:#f4efe2;--ink:#111;--sel:#1b2a8f;--acc:#ff5f3a}
+:root[data-theme=light],:root[data-theme=dark]{color-scheme:dark}
+body.amber{--ph:#ffb347}body.upside{--desk:#2a0d12;--desk2:#1a070b;--sel:#b3122e;--ph:#ff4d5e}body.midnight{--desk:#1b1f4a;--desk2:#121533;--sel:#5b3fd1}
+*{box-sizing:border-box;min-width:0}
+html,body{height:100%;margin:0;background:#000;overflow:hidden}
+body{font:18px/1.3 "Pixelify Sans",system-ui,sans-serif;color:var(--ink)}
+#crt{position:fixed;inset:0;overflow:hidden;background:#000}
+.scr{position:absolute;inset:0;display:none}.scr.on{display:block}
+/* CRT effects */
+#fx{position:fixed;inset:0;pointer-events:none;z-index:50;
+ background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55) 100%);
+ animation:flick 4s infinite}
+body.nofx #fx{display:none}
+@keyframes flick{0%,100%{opacity:1}47%{opacity:.93}48%{opacity:1}72%{opacity:.96}}
+.glow{color:var(--ph);text-shadow:0 0 4px var(--ph),0 0 14px color-mix(in srgb,var(--ph) 45%,transparent)}
+/* power */
+#off{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;cursor:pointer;text-align:center;padding:20px}
+#off .big{font:400 clamp(30px,6vw,56px)/1 "VT323",monospace}
+#off .blink{animation:bl 1s steps(1) infinite;font:400 24px "VT323",monospace}
+@keyframes bl{50%{opacity:0}}
+.pon{animation:pon .6s ease-out}
+@keyframes pon{0%{transform:scale(1,.004);filter:brightness(4)}40%{transform:scale(1,.004)}70%{transform:scale(1,1.02)}100%{transform:none}}
+.poff{animation:poff .7s ease-in forwards}
+@keyframes poff{0%{transform:none}50%{transform:scale(1,.004);filter:brightness(3)}85%{transform:scale(.002,.004)}100%{transform:scale(0,0);opacity:0}}
+/* bios */
+#bios{padding:clamp(16px,4vw,48px);font:400 clamp(18px,2.6vw,26px)/1.25 "VT323",monospace;white-space:pre-wrap;overflow:hidden}
+#bios .hint{position:absolute;bottom:20px;right:24px;opacity:.7}
+/* splash */
+#splash{display:none;align-items:center;justify-content:center;flex-direction:column;gap:26px;text-align:center;background:radial-gradient(circle at 50% 40%,#0c2b2a,#000 70%)}
+#splash.on{display:flex}
+.logo{font:700 clamp(40px,9vw,92px)/.9 "Pixelify Sans",sans-serif;letter-spacing:.02em}
+.logo small{display:block;font:400 clamp(18px,3vw,26px) "VT323",monospace;letter-spacing:.3em;margin-top:10px}
+.lbar{width:min(80vw,420px);height:30px;border:3px solid var(--ph);padding:3px;display:flex;gap:3px;box-shadow:0 0 12px color-mix(in srgb,var(--ph) 40%,transparent)}
+.lbar i{flex:1;background:var(--ph);opacity:0;transition:opacity .1s}
+.lmsg{font:400 22px "VT323",monospace;min-height:1.2em}
+/* desktop */
+#desk{background:var(--desk);background-image:radial-gradient(color-mix(in srgb,var(--desk2) 80%,transparent) 1px,transparent 1.4px);background-size:6px 6px}
+.menubar{position:absolute;top:0;left:0;right:0;height:38px;background:var(--win);border-bottom:2px solid var(--ink);display:flex;align-items:center;gap:4px;padding:0 8px;z-index:40}
+.menubar button{font:600 17px "Pixelify Sans",sans-serif;background:none;border:0;padding:0 10px;height:34px;cursor:pointer;color:var(--ink)}
+.menubar button:hover,.menubar button[aria-expanded=true]{background:var(--sel);color:#fff}
+.menubar .clock{margin-left:auto;font:400 22px "VT323",monospace;padding:0 8px}
+.drop{position:absolute;top:38px;left:8px;background:var(--win);border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);z-index:41;display:none;min-width:220px}
+.drop.on{display:block}
+.drop button{display:block;width:100%;text-align:left;font:17px "Pixelify Sans",sans-serif;background:none;border:0;padding:10px 14px;cursor:pointer;min-height:44px}
+.drop button:hover{background:var(--sel);color:#fff}.drop hr{border:0;border-top:2px dotted var(--ink);margin:2px 0}
+.icons{position:absolute;top:52px;left:10px;bottom:10px;display:grid;grid-auto-flow:column;grid-template-rows:repeat(auto-fill,98px);grid-auto-columns:96px;gap:4px;z-index:1}
+.ico{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;cursor:pointer;padding:6px 2px;color:#fff;font:15px/1.15 "Pixelify Sans",sans-serif;text-align:center;text-shadow:1px 1px 0 #000}
+.ico svg{width:48px;height:48px;image-rendering:pixelated;filter:drop-shadow(2px 2px 0 #0007)}
+.ico:focus-visible span,.ico:active span{background:var(--sel);outline:1px dotted #fff}
+.win{position:absolute;background:var(--win);border:2px solid var(--ink);box-shadow:5px 5px 0 #0009;display:flex;flex-direction:column;max-width:calc(100vw - 16px);max-height:calc(100vh - 54px);z-index:10;animation:wopen .18s ease-out}
+@keyframes wopen{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
+.tb{height:34px;flex:none;display:flex;align-items:center;gap:8px;padding:0 6px;border-bottom:2px solid var(--ink);cursor:grab;touch-action:none;user-select:none;
+ background:repeating-linear-gradient(0deg,var(--win) 0 3px,var(--ink) 3px 4px)}
+.win.inactive .tb{background:var(--win)}
+.tb .x{width:22px;height:22px;border:2px solid var(--ink);background:var(--win);cursor:pointer;flex:none;padding:0;position:relative}
+.tb .x::after{content:"";position:absolute;inset:4px;background:var(--ink);transform:scale(0)}.tb .x:hover::after{transform:none}
+.tb b{background:var(--win);padding:0 10px;margin:0 auto;font:600 17px "Pixelify Sans",sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wb{overflow:auto;padding:16px;flex:1;font-size:17px}
+.wb h2{font:700 30px/1 "Pixelify Sans",sans-serif;margin:0 0 8px}
+.wb p{margin:0 0 10px}
+.tag{display:inline-block;border:2px solid var(--ink);padding:1px 8px;font-size:15px;margin:0 6px 6px 0}
+.tag.live{background:#5cff8a}.tag.soon{background:#ffd76a}
+.btn{font:600 17px "Pixelify Sans",sans-serif;border:2px solid var(--ink);background:var(--win);box-shadow:3px 3px 0 var(--ink);padding:8px 16px;min-height:44px;cursor:pointer;color:var(--ink);text-decoration:none;display:inline-flex;align-items:center}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.folder{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.folder .ico{color:var(--ink);text-shadow:none}
+.term{background:#050805;padding:14px;font:400 21px/1.25 "VT323",monospace;height:100%;min-height:300px;overflow:auto;cursor:text}
+.term .ln{white-space:pre-wrap;overflow-wrap:anywhere}
+.term form{display:flex;gap:8px}.term input{flex:1;background:transparent;border:0;color:var(--ph);font:inherit;outline:none;min-height:30px;text-shadow:0 0 4px var(--ph)}
+.loading{display:flex;flex-direction:column;align-items:center;gap:14px;padding:26px 10px;font:400 22px "VT323",monospace}
+.hg{width:34px;height:34px;border:3px solid var(--ink);border-radius:50%;border-top-color:transparent;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.mini{height:18px;width:220px;border:2px solid var(--ink);padding:2px}.mini i{display:block;height:100%;background:var(--sel);width:0;transition:width .5s steps(6)}
+.card{display:grid;gap:8px;font-size:18px}.card a{color:var(--sel)}
+.lock{background:#000;color:var(--ph);font:400 22px/1.3 "VT323",monospace;padding:18px;text-align:center}
+.lock .big{font-size:44px;letter-spacing:.1em;animation:gl 1.2s infinite steps(2)}
+@keyframes gl{0%{transform:translate(0)}25%{transform:translate(-3px,1px);text-shadow:3px 0 #ff2a6d,-3px 0 #05d9e8}50%{transform:translate(2px,-1px)}75%{transform:translate(-1px,2px);text-shadow:-3px 0 #ff2a6d,3px 0 #05d9e8}}
+.set{display:grid;gap:12px}.set .row{display:flex;flex-wrap:wrap;gap:8px}
+.set .btn[aria-pressed=true]{background:var(--sel);color:#fff}
+/* bsod */
+#bsod{background:#0b2bb0;color:#fff;font:400 clamp(20px,2.8vw,28px)/1.35 "VT323",monospace;padding:clamp(20px,8vw,120px);cursor:pointer}
+#bsod .t{background:#c6c6c6;color:#0b2bb0;padding:0 10px;display:inline-block;margin-bottom:20px}
+#bye{display:none;align-items:center;justify-content:center;text-align:center;font:400 clamp(26px,4vw,40px) "VT323",monospace;color:#ff9b3d;padding:20px;cursor:pointer}
+#bye.on{display:flex}
+:root{--cy:#19f0ff;--mg:#ff2bd6;--gr:#3dff9a;--rd:#ff3b5c;--am:#ffb020}
+#city{background:#03060d;color:#cfefff;font:16px/1.4 "Share Tech Mono",monospace}
+#ccv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:manipulation}
+.hud{position:absolute;top:0;left:0;right:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;padding:10px 14px;background:linear-gradient(#03060dee,#03060d00);z-index:3;pointer-events:none}
+.hud b{font:900 18px "Orbitron",sans-serif;color:var(--cy);letter-spacing:.12em;text-shadow:0 0 10px var(--cy)}
+.hud .vit{display:flex;align-items:center;gap:8px}.hud #vnum{font:700 22px "Orbitron",sans-serif;min-width:3ch}
+.hud .hr{margin-left:auto}
+.hud button{pointer-events:auto;font:700 14px "Orbitron",sans-serif;letter-spacing:.12em;color:var(--cy);background:#03060d;border:1px solid var(--cy);min-height:40px;padding:0 14px;cursor:pointer}
+.clog{position:absolute;left:14px;bottom:12px;z-index:3;pointer-events:none;display:grid;gap:2px;font-size:14px;max-width:min(90vw,520px)}
+.clog div{color:var(--cy);text-shadow:0 0 6px #19f0ff88;background:#03060dcc;padding:1px 6px;justify-self:start}
+.clog .bad{color:var(--rd)}.clog .ok{color:var(--gr)}
+.cpanel{position:absolute;inset:0;z-index:4;display:none;align-items:center;justify-content:center;padding:16px;background:radial-gradient(circle at 50% 40%,#0a1a3acc,#03060df2 70%)}
+.cpanel.on{display:flex}
+.cbox{width:min(560px,100%);border:1px solid var(--cy);box-shadow:0 0 24px #19f0ff55,inset 0 0 24px #19f0ff22;background:#050b18ee;padding:clamp(18px,4vw,30px);display:grid;gap:14px;max-height:calc(100vh - 32px);overflow:auto}
+.cbox h2{font:900 clamp(28px,6vw,44px)/1 "Orbitron",sans-serif;margin:0;color:#fff;letter-spacing:.06em;text-shadow:0 0 14px var(--cy)}
+.cbox h2.bad{text-shadow:0 0 14px var(--rd);color:#ffd6dc}.cbox h2.ok{text-shadow:0 0 14px var(--gr)}
+.cbox p{margin:0}.cbox .k{color:var(--cy)}
+.cbtns{display:flex;flex-wrap:wrap;gap:10px}
+.cbtn{font:700 15px "Orbitron",sans-serif;letter-spacing:.1em;color:#03060d;background:var(--cy);border:0;min-height:48px;padding:0 18px;cursor:pointer;box-shadow:0 0 14px #19f0ff88;text-align:left}
+.cbtn small{display:block;font:12px "Share Tech Mono",monospace;letter-spacing:0;opacity:.8}
+.cbtn.ghost{background:transparent;color:var(--cy);border:1px solid var(--cy);box-shadow:none}
+.cbtn.mg{background:var(--mg);box-shadow:0 0 14px #ff2bd688}
+.cstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.cstats div{border:1px solid #19f0ff55;padding:8px}.cstats b{display:block;font:700 22px "Orbitron",sans-serif;color:#fff}
+.jack{display:grid;gap:10px;justify-items:center;text-align:center;width:min(520px,100%)}
+.ring{width:96px;height:96px;border-radius:50%;border:3px solid #19f0ff33;border-top-color:var(--cy);border-right-color:var(--mg);animation:sp .8s linear infinite;box-shadow:0 0 20px #19f0ff55}
+.pct{font:900 40px "Orbitron",sans-serif;color:#fff;text-shadow:0 0 12px var(--cy)}
+.hex{font-size:13px;color:#19f0ff99;height:96px;overflow:hidden;width:100%;text-align:left;white-space:pre}
+.jmsg{color:var(--mg);letter-spacing:.14em;min-height:1.4em}
+.uplink{position:absolute;inset:0;z-index:6;background:#0a2bff;display:none;align-items:center;justify-content:center;font:900 clamp(26px,6vw,56px) "Orbitron",sans-serif;color:#fff;letter-spacing:.1em;text-align:center}
+.uplink.on{display:flex;animation:gl .25s infinite steps(2)}
+#matrix{position:fixed;inset:0;z-index:45;pointer-events:none;display:none}
+@media(max-width:700px){.win{left:8px!important;right:8px;width:auto!important;top:46px!important;height:calc(100vh - 56px)!important}.icons{grid-auto-flow:row;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));grid-template-rows:none;grid-auto-rows:96px;right:10px;bottom:auto}}
+@media(prefers-reduced-motion:reduce){#fx,.pon,.win,.lock .big{animation:none}.poff{animation-duration:.01s}}
+</style>
+</head>
+<body>
+<div id="crt">
+  <div class="scr on" id="off" role="button" tabindex="0" aria-label="Power on"><div class="big glow">ABDULMALIK OS</div><div class="blink glow">PRESS ANY KEY OR TAP TO POWER ON</div></div>
+  <div class="scr glow" id="bios"></div>
+  <div class="scr" id="splash"><div class="logo glow">ABDULMALIK<small>OS · VERSION 1.0</small></div><div class="lbar" id="lbar"></div><div class="lmsg glow" id="lmsg">Starting up…</div></div>
+  <div class="scr" id="desk">
+    <div class="menubar"><button type="button" id="mlogo" aria-expanded="false" aria-haspopup="true">◆ Abdulmalik OS</button><button type="button" data-open="projects">Projects</button><button type="button" data-open="terminal">Terminal</button><span class="clock" id="clk">00:00</span></div>
+    <div class="drop" id="drop" role="menu">
+      <button type="button" data-open="aboutos" role="menuitem">About this computer</button>
+      <button type="button" data-open="settings" role="menuitem">Control panel</button>
+      <button type="button" id="snd" role="menuitem">Sound: on</button><hr>
+      <button type="button" id="restart" role="menuitem">Restart</button>
+      <button type="button" id="shut" role="menuitem">Shut down</button>
+    </div>
+    <div class="icons" id="icons"></div>
+  </div>
+  <div class="scr" id="city"><canvas id="ccv" aria-label="City traffic grid. Tap an intersection to flip its lights."></canvas>
+    <div class="hud" id="hud" hidden><b>CITYLINK</b><span id="clv">CODE RED</span><span class="vit"><canvas id="ecg" width="150" height="36"></canvas><span id="vnum">100</span></span><span class="hr"><span id="ctime">0.0</span>s · <span id="chacks">0</span> hacks</span><button type="button" id="cexit">Jack out</button></div>
+    <div class="clog" id="clog"></div><div class="cpanel" id="cpanel"></div><div class="uplink" id="uplink">UPLINK ESTABLISHED</div></div>
+  <div class="scr" id="bsod" role="button" tabindex="0"></div>
+  <div class="scr" id="bye" role="button" tabindex="0">It is now safe to turn off your computer.<br>(Tap to power on again.)</div>
+</div>
+<canvas id="matrix"></canvas>
+<div id="fx"></div>
+<script>
+{
+/* ===== EDIT YOUR CONTENT HERE ===== */
+const ME={name:'Abdulmalik Olusesi',role:'Software Engineering student · founder of Metic Apparel',email:'abdulmalikayomide40@gmail.com',github:'Bhigayo',linkedin:'Abdulmalik Olusesi'};
+const PROJ=[
+ {id:'family',name:'The Family',ic:'doc',status:'live',tech:'JavaScript · parsing · canvas UI',blurb:'Turns a WhatsApp group chat export into crime-family case files: the Don, the Ghost, the Night Shift. Prints a tabloid front page to share. Runs entirely in the browser; the chat never leaves your phone.',link:'https://claude.ai/artifact/DZsgBmTsTK1kofBFgpGVUh'},
+ {id:'velvet',name:'Velvet Room',ic:'glass',status:'live',tech:'JavaScript · game design · writing',blurb:'A 1968 murder-mystery party kit. The host desk sends secret invites; each guest gets a case file whose clues unlock round by round with code words.',link:'https://claude.ai/artifact/8FRABUr9YdGEyrXxSCr2dV'},
+ {id:'afterlife',name:'Afterlife',ic:'city',status:'live',tech:'Simulation · utility AI · canvas',blurb:'A living city of 20 residents with needs, jobs, money, memories and relationships, none of it scripted. Includes a God mode and a newspaper that prints every midnight.',link:'https://claude.ai/artifact/EgMwQwxXjMThFSXgiQPcBp'},
+ {id:'citylink',name:'CITYLINK',ic:'city',status:'live',tech:'Canvas · traffic simulation · game design',blurb:'Jack into a neon city from a 1995 computer. Mission one, CODE RED: hack traffic lights in real time to get an ambulance to hospital before the patient flatlines. Fictional city, no real systems.',open:'citylink'},
+ {id:'ebt',name:'Eatsbythia',ic:'bag',status:'soon',tech:'Web app · ordering · dashboard',blurb:'A digital ordering system and kitchen dashboard for a home-based Nigerian food business.'},
+ {id:'ajo',name:'Ajo',ic:'coin',status:'soon',tech:'Web app',blurb:'A tracker for ajo / esusu savings groups: who has paid, whose turn it is.'},
+ {id:'saldo',name:'Saldo',ic:'coin',status:'soon',tech:'Web app · finance',blurb:'Answers one question: how much can I safely spend until payday?'},
+ {id:'wardrobe',name:'Wardrobe',ic:'shirt',status:'soon',tech:'Web app',blurb:'Photograph your clothes and get a daily outfit for the weather and the occasion.'},
+ {id:'director',name:'Director',ic:'cam',status:'soon',tech:'AI · web app',blurb:'An AI creative director for planning shoots: shot lists, framing and gimbal moves.'},
+ {id:'quickfire',name:'Quickfire',ic:'joy',status:'soon',tech:'Realtime · multiplayer',blurb:'A party quiz game: the big screen hosts and friends play on their phones.'},
+ {id:'britlife',name:'Brit Life',ic:'city',status:'soon',tech:'3D · multiplayer',blurb:'A 3D multiplayer life-sim set in Birmingham, starting with Digbeth.'},
+ {id:'till',name:'Till System',ic:'bag',status:'soon',tech:'Web app · POS',blurb:'A self-checkout and staff till, inspired by real store tills.'},
+ {id:'washer',name:'Eco Washer',ic:'chip',status:'soon',tech:'Arduino · Tinkercad',blurb:'University coursework: a smart, eco-friendly washing machine controller.'}];
+/* ================================== */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+let sound=true,ac=null,booting=false,skip=false;
+function beep(f=880,d=.1,type='square',v=.05,when=0){if(!sound)return;try{ac=ac||new AudioContext();const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+when;o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(ac.destination);o.start(t);o.stop(t+d)}catch(e){}}
+const chime=()=>[523,659,784,1047].forEach((f,i)=>beep(f,.5,'triangle',.06,i*.12));
+const show=id=>{document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('on',s.id===id))};
+/* pixel icons: 12x12 grids */
+const PIX={folder:['............','.####.......','#....######.','#..........#','############','#..........#','#..........#','#..........#','#..........#','#..........#','############','............'],
+doc:['.#######....','.#.....##...','.#.....#.#..','.#.....####.','.#........#.','.#.####...#.','.#........#.','.#.######.#.','.#........#.','.#.#####..#.','.#........#.','.##########.'],
+term:['############','#..........#','#.#........#','#..#.......#','#.#..###...#','#..........#','#..........#','#..........#','############','....####....','..########..','............'],
+card:['............','############','#..........#','#.##..####.#','#.##.......#','#....####..#','#.##.......#','#..........#','############','............','............','............'],
+bomb:['.........#..','........#.#.','.......#....','.....###....','...#######..','..#########.','..##.######.','..#########.','..#########.','...#######..','.....###....','............'],
+trash:['....####....','############','.#........#.','.#.#.##.#.#.','.#.#.##.#.#.','.#.#.##.#.#.','.#.#.##.#.#.','.#.#.##.#.#.','.#.#.##.#.#.','.#........#.','..########..','............'],
+gear:['.....##.....','..#.####.#..','..########..','.####..####.','..##....##..','###......###','###......###','..##....##..','.####..####.','..########..','..#.####.#..','.....##.....'],
+city:['......#.....','.....###....','.##..###....','.##..###.##.','.##..###.##.','###..###.###','###.####.###','###.####.###','############','############','............','............'],
+glass:['#..........#','#..........#','.#........#.','.##########.','..#......#..','...#....#...','....####....','.....##.....','.....##.....','.....##.....','...######...','............'],
+bag:['....####....','...#....#...','...#....#...','############','#..........#','#..........#','#..........#','#..........#','#..........#','#..........#','############','............'],
+coin:['....####....','..########..','.###....###.','.##..##..##.','##..####..##','##...##...##','##..####..##','##...##...##','.##..##..##.','.###....###.','..########..','....####....'],
+shirt:['..###..###..','.####..####.','############','############','.###....###.','..#......#..','..#......#..','..#......#..','..#......#..','..#......#..','..########..','............'],
+cam:['............','...####.....','############','#..........#','#...####...#','#..##..##..#','#..#....#..#','#..##..##..#','#...####...#','#..........#','############','............'],
+joy:['.....##.....','.....##.....','......#.....','......#.....','..########..','.##########.','##.#....##.#','#...#..#..##','##.#....##.#','############','.##......##.','............'],
+chip:['.#.#.#.#.#..','############','#..........#','##.######.##','#..#....#..#','##.#....#.##','#..#....#..#','##.######.##','#..........#','############','.#.#.#.#.#..','............']};
+const COLS={folder:'#ffd76a',doc:'#ffffff',term:'#2b2b2b',card:'#9fe3ff',bomb:'#ff5f3a',trash:'#d9d9d9',gear:'#c9b2ff',city:'#5cff8a',glass:'#ff8fb1',bag:'#ffb347',coin:'#ffd76a',shirt:'#8fd3ff',cam:'#e6e6e6',joy:'#b2ff8f',chip:'#7ee0c3'};
+function icon(k){const g=PIX[k],c=COLS[k];let r='';g.forEach((row,y)=>[...row].forEach((ch,x)=>{if(ch==='#')r+=`<rect x="${x}" y="${y}" width="1" height="1"/>`}));
+ return `<svg viewBox="-1 -1 14 14" aria-hidden="true"><rect x="0" y="0" width="12" height="12" fill="none"/><g fill="${c}" stroke="#111" stroke-width=".15">${r}</g></svg>`}
+const DESK=[['about','About me.txt','doc'],['projects','Projects','folder'],['terminal','Terminal','term'],['contact','Contact.card','card'],['citylink','CITYLINK.exe','city'],['settings','Control panel','gear'],['dno','DO_NOT_OPEN.exe','bomb'],['trash','Trash','trash']];
+$('icons').innerHTML=DESK.map(([id,l,k])=>`<button class="ico" type="button" data-open="${id}">${icon(k)}<span>${esc(l)}</span></button>`).join('');
+/* windows */
+let z=20,cascade=0;const wins={};
+function openWin(id,title,html,w=520,h=null){
+ if(wins[id]){focus(wins[id]);return wins[id]}
+ const el=document.createElement('div');el.className='win';el.style.width=w+'px';if(h)el.style.height=h+'px';
+ const x=Math.min(130+cascade*28,Math.max(8,innerWidth-w-16)),y=56+cascade*26;cascade=(cascade+1)%6;el.style.left=x+'px';el.style.top=y+'px';
+ el.innerHTML=`<div class="tb"><button class="x" type="button" aria-label="Close ${esc(title)}"></button><b>${esc(title)}</b></div><div class="wb"></div>`;
+ el.querySelector('.wb').innerHTML=html;$('desk').appendChild(el);wins[id]=el;focus(el);beep(1200,.03,'square',.03);
+ el.querySelector('.x').onclick=()=>{el.remove();delete wins[id];beep(500,.04,'square',.03)};
+ el.addEventListener('pointerdown',()=>focus(el));
+ const tb=el.querySelector('.tb');tb.addEventListener('pointerdown',e=>{if(e.target.closest('.x')||innerWidth<=700)return;const ox=e.clientX-el.offsetLeft,oy=e.clientY-el.offsetTop;tb.setPointerCapture(e.pointerId);
+  const mv=ev=>{el.style.left=Math.max(-el.offsetWidth+80,Math.min(innerWidth-80,ev.clientX-ox))+'px';el.style.top=Math.max(40,Math.min(innerHeight-40,ev.clientY-oy))+'px'};
+  const up=()=>{tb.removeEventListener('pointermove',mv);tb.removeEventListener('pointerup',up)};tb.addEventListener('pointermove',mv);tb.addEventListener('pointerup',up)});
+ return el}
+function focus(el){el.style.zIndex=++z;Object.values(wins).forEach(w=>w.classList.toggle('inactive',w!==el))}
+async function launch(id,title,html,w,h,slow){
+ if(wins[id]){focus(wins[id]);return}
+ if(slow){const l=openWin('_load','Loading',`<div class="loading"><div class="hg"></div><div>Loading ${esc(title)}…</div><div class="mini"><i id="mb"></i></div></div>`,320);
+  await wait(30);const mb=l.querySelector('#mb');if(mb)mb.style.width='100%';await wait(650);l.remove();delete wins._load}
+ return openWin(id,title,html,w,h)}
+const projHTML=p=>`<h2>${esc(p.name)}</h2><p><span class="tag ${p.status}">${p.status==='live'?'Live':'Case study soon'}</span><span class="tag">${esc(p.tech)}</span></p><p>${esc(p.blurb)}</p>${p.link?`<p><a class="btn" href="${p.link}" target="_blank" rel="noopener">Launch ${esc(p.name)} ↗</a></p>`:''}${p.open?`<p><button class="btn" type="button" data-open="${p.open}">Run ${esc(p.name)}</button></p>`:''}`;
+const APPS={
+ about:()=>launch('about','About me.txt',`<h2>Hello.</h2><p>I'm ${esc(ME.name)}. ${esc(ME.role)}.</p><p>I build things that are fun to use: games, simulations, tools for small businesses, and weird experiments that look like they escaped from a film set. This computer is one of them.</p><p>Background: Level 3 Software Development (D*DD), now studying BSc Software Engineering at Birmingham City University. Before that: retail, HR and office admin, and hospitality.</p><p>Open the <b>Projects</b> folder, or try the <b>Terminal</b>. Type <b>help</b>.</p>`,500),
+ projects:()=>launch('projects','Projects',`<div class="folder">${PROJ.map(p=>`<button class="ico" type="button" data-proj="${p.id}">${icon(p.ic)}<span>${esc(p.name)}</span></button>`).join('')}</div>`,560,null,true),
+ contact:()=>launch('contact','Contact.card',`<div class="card"><h2>${esc(ME.name)}</h2><p>${esc(ME.role)}</p><p>Email: <a href="mailto:${ME.email}">${ME.email}</a></p><p>GitHub: <a href="https://github.com/${ME.github}" target="_blank" rel="noopener">github.com/${ME.github}</a></p><p>LinkedIn: ${esc(ME.linkedin)}</p></div>`,440),
+ citylink:()=>cityOpen(),
+ trash:()=>launch('trash','Trash',`<p><b>old_ideas.txt</b></p><p class="term" style="min-height:0;color:var(--ph)">- another dashboard (vetoed)<br>- to-do app #47 (vetoed)<br>- sleep (postponed)</p>`,380),
+ aboutos:()=>launch('aboutos','About this computer',`<h2>Abdulmalik OS 1.0</h2><p>Built from scratch in HTML, CSS and JavaScript. No frameworks. One file.</p><p>Memory: 640K, which ought to be enough for anybody.<br>Processor: caffeine and ambition.</p>`,420),
+ settings:()=>launch('settings','Control panel',settingsHTML(),440),
+ terminal:()=>{const w=launch('terminal','Terminal',`<div class="term glow" id="term"><div id="tout"></div><form id="tform"><span>C:\\&gt;</span><input id="tin" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Command"></form></div>`,600,420);
+  Promise.resolve(w).then(()=>{const t=$('term');if(!t||t.dataset.ok)return;t.dataset.ok=1;say('ABDULMALIK OS TERMINAL v1.0\nType "help" for commands.\n');$('tform').onsubmit=e=>{e.preventDefault();run($('tin').value);$('tin').value=''};t.onclick=()=>$('tin').focus();$('tin').focus()})},
+ dno:()=>{if(!confirmBsod())return},
+};
+function confirmBsod(){
+ $('bsod').innerHTML=`<span class="t"> ABDULMALIK OS </span><p>A fatal error has occurred: CURIOSITY_OVERFLOW at 0x00DEFACE.</p><p>You were told not to open it.</p><p>* Press any key to restart the computer.<br>* Your projects are safe. Your pride may not be.</p><p style="margin-top:40px">Press any key to continue _</p>`;
+ beep(120,.6,'sawtooth',.06);show('bsod');$('bsod').focus();return true}
+function settingsHTML(){const th=document.body.className.match(/amber|upside|midnight/)?.[0]||'teal',fx=!document.body.classList.contains('nofx');
+ return `<div class="set"><p class="lab"><b>Desktop theme</b></p><div class="row">${[['teal','Teal 1995'],['midnight','Midnight'],['upside','Upside down'],['amber','Amber screen']].map(([k,l])=>`<button class="btn" type="button" data-th="${k}" aria-pressed="${k===th}">${l}</button>`).join('')}</div>
+ <p><b>CRT effects</b></p><div class="row"><button class="btn" type="button" data-fx aria-pressed="${fx}">${fx?'Scanlines on':'Scanlines off'}</button></div></div>`}
+/* terminal */
+function say(t){const o=$('tout');if(!o)return;const d=document.createElement('div');d.className='ln';d.textContent=t;o.appendChild(d);$('term').scrollTop=1e6}
+function run(raw){const c=raw.trim(),[cmd,...rest]=c.split(/\s+/),arg=rest.join(' ').toLowerCase();say('C:\\>'+c);if(!c)return;beep(900,.02,'square',.02);
+ const P=PROJ.find(p=>p.id===arg||p.name.toLowerCase()===arg);
+ switch(cmd.toLowerCase()){
+  case 'help':say('help        this list\nwhoami      who built this\nls          list projects\nopen <name> open a project or app\ncontact     how to reach me\ndate        today\ntheme <teal|midnight|upside|amber>\nmatrix      you know what this does\nhack        try it\nclear       clear the screen');break;
+  case 'whoami':say(`${ME.name}\n${ME.role}`);break;
+  case 'ls':case 'dir':say(PROJ.map(p=>`${p.status==='live'?'[LIVE]':'[SOON]'} ${p.id.padEnd(10)} ${p.name}`).join('\n'));break;
+  case 'open':if(P){say(`Opening ${P.name}…`);launch('p-'+P.id,P.name,projHTML(P),460)}else if(APPS[arg]&&arg!=='dno'){say(`Opening ${arg}…`);APPS[arg]()}else say(`Not found: ${arg||'(nothing)'}. Try "ls".`);break;
+  case 'contact':say(`email   ${ME.email}\ngithub  github.com/${ME.github}`);break;
+  case 'date':say(new Date().toDateString());break;
+  case 'theme':if(['teal','midnight','upside','amber'].includes(arg)){setTheme(arg);say('Theme set: '+arg)}else say('Usage: theme teal|midnight|upside|amber');break;
+  case 'matrix':say('Wake up…');matrix();break;
+  case 'hack':say('Connecting to CITYLINK');let i=0;const iv=setInterval(()=>{say('.'.repeat(++i)+(i%2?' handshake':' routing'));if(i>=5){clearInterval(iv);say('Handshake accepted. Launching CITYLINK…');setTimeout(cityOpen,700)}},280);break;
+  case 'sudo':say('Nice try.');break;
+  case 'clear':case 'cls':$('tout').innerHTML='';break;
+  case 'exit':wins.terminal?.querySelector('.x').click();break;
+  default:say(`'${cmd}' is not recognised. Type "help".`)}}
+function setTheme(k){document.body.classList.remove('amber','upside','midnight');if(k!=='teal')document.body.classList.add(k);if(wins.settings)wins.settings.querySelector('.wb').innerHTML=settingsHTML()}
+function matrix(){const cv=$('matrix'),x=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;cv.style.display='block';const cols=Math.floor(innerWidth/18),ys=Array(cols).fill(0);let n=0;
+ const col=getComputedStyle(document.body).getPropertyValue('--ph').trim()||'#5cff8a';
+ const iv=setInterval(()=>{x.fillStyle='rgba(0,0,0,.12)';x.fillRect(0,0,cv.width,cv.height);x.fillStyle=col;x.font='18px VT323';ys.forEach((y,i)=>{x.fillText(String.fromCharCode(0x30A0+Math.random()*96),i*18,y);ys[i]=y>cv.height&&Math.random()>.97?0:y+18});
+  if(++n>110){clearInterval(iv);cv.style.display='none'}},45)}
+/* ===== CITYLINK ===== */
+const cv=$('ccv'),cx=cv.getContext('2d'),ecg=$('ecg'),ex=ecg.getContext('2d');
+const LV=[{name:'Quiet night',spawn:1.6,max:14,decay:3,pen:3,glitch:.15},{name:'Rush hour',spawn:.8,max:26,decay:3.3,pen:3.6,glitch:.25},{name:'Gridlock',spawn:.45,max:40,decay:3.6,pen:4.2,glitch:.35}];
+let G=null,craf=0,clast=0,beats=0;
+const cbeep=(f,d,t='sine',v=.05)=>beep(f,d,t,v);
+function clog(t,c=''){const l=$('clog'),d=document.createElement('div');d.textContent='> '+t;d.className=c;l.prepend(d);while(l.children.length>4)l.lastChild.remove()}
+function panel(html){const p=$('cpanel');p.innerHTML=html;p.classList.add('on')}
+async function cityOpen(){
+ closeMenu();show('city');sizeCity();$('hud').hidden=true;$('clog').innerHTML='';drawIdle();
+ panel(`<div class="jack"><div class="ring"></div><div class="pct" id="jp">0%</div><div class="jmsg" id="jm">INITIALISING</div><div class="hex" id="jh"></div></div>`);
+ const msgs=['HANDSHAKE','ROUTING VIA RELAY 7','DECRYPTING CITY GRID','MAPPING TRAFFIC NODES','SPOOFING OPERATOR TOKEN','SYNCING'];
+ for(let i=0;i<=100;i+=2+Math.floor(Math.random()*5)){if(!$('jp'))return;$('jp').textContent=Math.min(i,100)+'%';$('jm').textContent=msgs[Math.min(5,Math.floor(i/17))];
+  $('jh').textContent=Array.from({length:6},()=>Array.from({length:8},()=>Math.floor(Math.random()*65536).toString(16).padStart(4,'0')).join(' ')).join('\n');
+  cbeep(400+i*8,.03,'square',.02);await wait(60)}
+ const u=$('uplink');u.classList.add('on');cbeep(1200,.3,'sawtooth',.04);await wait(700);u.classList.remove('on');
+ panel(`<div class="cbox"><h2 class="ok">ACCESS GRANTED</h2><p class="k">Welcome to Lucien City, 2049.</p><p>The city's traffic AI has glitched. An ambulance is carrying a critical patient to St Lucien General and every light on its route is working against it.</p>
+ <p><b class="k">Mission · CODE RED</b><br>Tap an intersection to hack its lights and flip which way is green. Clear the ambulance's route, and flush the cars queued ahead of it. Amber rings are glitched lights that change slowly. Watch the patient's vitals.</p>
+ <div class="cbtns">${LV.map((l,i)=>`<button class="cbtn${i===2?' mg':''}" type="button" data-lv="${i}">Level ${i+1}<small>${l.name}</small></button>`).join('')}</div>
+ <div class="cbtns"><button class="cbtn ghost" type="button" data-jackout>Back to desktop</button></div></div>`);
+}
+function sizeCity(){const d=devicePixelRatio||1;cv.width=innerWidth*d;cv.height=innerHeight*d;cx.setTransform(d,0,0,d,0,0)}
+addEventListener('resize',()=>{if($('city').classList.contains('on')){sizeCity();if(!G)drawIdle()}});
+function drawIdle(){const W=innerWidth,H=innerHeight;cx.fillStyle='#03060d';cx.fillRect(0,0,W,H);cx.strokeStyle='#19f0ff22';cx.lineWidth=1;for(let x=0;x<W;x+=40){cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,H);cx.stroke()}for(let y=0;y<H;y+=40){cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke()}}
+const lbl=(i,j)=>String.fromCharCode(65+i)+(j+1);
+function startLevel(n){
+ const W=innerWidth,H=innerHeight,port=W<H,cols=port?4:6,rows=port?6:4,top=74,bot=60;
+ const sp=Math.min((W-60)/(cols-1+.6),(H-top-bot)/(rows-1+.6)),ox=(W-sp*(cols-1))/2,oy=top+(H-top-bot-sp*(rows-1))/2;
+ const N=(i,j)=>({x:ox+i*sp,y:oy+j*sp,node:i+','+j,i,j});
+ const L=LV[n],lights={};
+ for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){const gl=Math.random()<L.glitch;lights[i+','+j]={axis:Math.random()<.5?'H':'V',per:gl?11+Math.random()*4:4+Math.random()*3,t:Math.random()*5,glitch:gl,hack:0,i,j}}
+ const win=[];for(let k=0;k<260;k++){const x=Math.random()*W,y=top+Math.random()*(H-top);win.push([x,y,Math.random()<.15])}
+ // ambulance route: from left of bottom row to top-right node
+ let i=0,j=rows-1;const rp=[{x:-30,y:oy+j*sp},N(i,j)];
+ while(i<cols-1||j>0){if(i<cols-1&&(j===0||Math.random()<.55))i++;else j--;rp.push(N(i,j))}
+ G={n,L,W,H,cols,rows,sp,ox,oy,N,lights,win,veh:[],t:0,vit:100,hacks:0,spawnAcc:0,done:false,heldAt:{},hosp:rp.at(-1)};
+ G.amb=mkVeh(rp,true);G.veh.push(G.amb);for(let k=0;k<Math.round(L.max*.6);k++)spawnCar(true);
+ $('cpanel').classList.remove('on');$('hud').hidden=false;$('clv').textContent='CODE RED · L'+(n+1);$('clog').innerHTML='';
+ clog('Ambulance inbound. Destination: St Lucien General.');cbeep(880,.15,'triangle',.05);
+ clast=performance.now();cancelAnimationFrame(craf);craf=requestAnimationFrame(cityLoop);
+}
+function mkVeh(pts,amb){const v={pts,k:0,d:0,amb,v:G.sp*(amb?.78:.55+Math.random()*.2),col:Math.random()<.5?'#ff2bd6':'#e8f7ff',stopT:0};v.len=Math.hypot(pts[1].x-pts[0].x,pts[1].y-pts[0].y);return v}
+function spawnCar(anywhere){const{cols,rows,sp,N}=G,side=Math.floor(Math.random()*4);let i,j,di,dj,start;
+ if(side===0){j=Math.floor(Math.random()*rows);i=0;di=1;dj=0}else if(side===1){j=Math.floor(Math.random()*rows);i=cols-1;di=-1;dj=0}else if(side===2){i=Math.floor(Math.random()*cols);j=0;di=0;dj=1}else{i=Math.floor(Math.random()*cols);j=rows-1;di=0;dj=-1}
+ const n0=N(i,j);start={x:n0.x-di*sp*.9,y:n0.y-dj*sp*.9};const pts=[start,n0];
+ for(let s=0;s<20;s++){if(Math.random()<.25){const opts=[[dj,di],[-dj,-di]].filter(([a,b])=>i+a>=0&&i+a<cols&&j+b>=0&&j+b<rows);if(opts.length)[di,dj]=opts[Math.floor(Math.random()*opts.length)]}
+  const ni=i+di,nj=j+dj;if(ni<0||ni>=cols||nj<0||nj>=rows){const l=pts.at(-1);pts.push({x:l.x+di*sp*.9,y:l.y+dj*sp*.9});break}i=ni;j=nj;pts.push(N(i,j))}
+ const v=mkVeh(pts,false);if(anywhere){v.k=Math.min(pts.length-2,1+Math.floor(Math.random()*(pts.length-2)));v.len=Math.hypot(pts[v.k+1].x-pts[v.k].x,pts[v.k+1].y-pts[v.k].y);v.d=Math.random()*v.len*.5}
+ const p=vpos(v);if(G.veh.some(u=>Math.hypot(vpos(u).x-p.x,vpos(u).y-p.y)<26))return;G.veh.push(v)}
+function vdir(v){const a=v.pts[v.k],b=v.pts[v.k+1],l=Math.hypot(b.x-a.x,b.y-a.y)||1;return{x:(b.x-a.x)/l,y:(b.y-a.y)/l}}
+function vpos(v){const a=v.pts[v.k],dv=vdir(v),off=G.sp*.055;return{x:a.x+dv.x*v.d+dv.y*off,y:a.y+dv.y*v.d-dv.x*off}}
+function cityStep(dt){
+ const g=G;g.t+=dt;
+ for(const k in g.lights){const l=g.lights[k];if(l.cd>0)l.cd-=dt;if(l.hack>0){l.hack+=dt;if(l.hack>=.35){l.hack=0;l.axis=l.axis==='H'?'V':'H';l.t=l.per*1.3;l.cd=.6;g.hacks++;cbeep(l.axis==='H'?1320:990,.06,'square',.03);clog(`Node ${lbl(l.i,l.j)} → ${l.axis==='H'?'east-west':'north-south'} green`)}}else{l.t-=dt;if(l.t<=0){l.axis=l.axis==='H'?'V':'H';l.t=l.per}}}
+ g.spawnAcc+=dt;if(g.spawnAcc>g.L.spawn&&g.veh.length<g.L.max+1){g.spawnAcc=0;spawnCar(false)}
+ const P=g.veh.map(vpos),D=g.veh.map(vdir),STOP=g.sp*.16,GAP=g.sp*.2;
+ g.veh.forEach((v,idx)=>{
+  let mv=v.v*dt;const a=v.pts[v.k],b=v.pts[v.k+1],rem=v.len-v.d,axis=a.y===b.y?'H':'V';
+  if(b.node&&!(v.amb&&b===g.hosp)){const L=g.lights[b.node];if(L.axis!==axis&&rem>STOP*.6){mv=Math.min(mv,Math.max(0,rem-STOP));
+   if(v.amb&&rem-STOP<2&&!g.heldAt[b.node]){g.heldAt[b.node]=1;clog(`Ambulance held at red · node ${lbl(L.i,L.j)}`,'bad');cbeep(220,.15,'sawtooth',.03)}}}
+  const p=P[idx],dv=D[idx];
+  g.veh.forEach((u,k2)=>{if(k2===idx)return;const q=P[k2],du=D[k2];if(du.x*dv.x+du.y*dv.y<.9)return;const rx=q.x-p.x,ry=q.y-p.y,al=rx*dv.x+ry*dv.y,lat=Math.abs(rx*dv.y-ry*dv.x);
+   if(al>0&&lat<g.sp*.05&&al<GAP+mv)mv=Math.min(mv,Math.max(0,al-GAP))});
+  v.stopped=mv<v.v*dt*.25;v.d+=mv;
+  while(v.d>=v.len&&v.k<v.pts.length-2){v.d-=v.len;v.k++;v.len=Math.hypot(v.pts[v.k+1].x-v.pts[v.k].x,v.pts[v.k+1].y-v.pts[v.k].y);if(v.amb&&v.pts[v.k].node)delete g.heldAt[v.pts[v.k].node]}
+  if(v.d>=v.len&&v.k>=v.pts.length-2)v.gone=true});
+ if(g.amb.gone){g.veh=g.veh.filter(v=>v!==g.amb);return cityEnd(true)}
+ g.veh=g.veh.filter(v=>!v.gone);
+ g.vit-=(g.L.decay+(g.amb.stopped?g.L.pen:0))*dt;if(g.vit<=0){g.vit=0;return cityEnd(false)}
+}
+function cityDraw(){
+ const g=G,W=innerWidth,H=innerHeight,c=cx,{sp,cols,rows,ox,oy}=g,rw=sp*.2,t=performance.now()/1000;
+ c.fillStyle='#050913';c.fillRect(0,0,W,H);
+ for(const[x,y,lit]of g.win){c.fillStyle=lit?'#19f0ff55':'#0e1a30';c.fillRect(x,y,3,3)}
+ c.fillStyle='#0a1222';c.strokeStyle='#19f0ff30';c.lineWidth=1;
+ for(let j=0;j<rows;j++){const y=oy+j*sp;c.fillRect(0,y-rw/2,W,rw)}for(let i=0;i<cols;i++){const x=ox+i*sp;c.fillRect(x-rw/2,0,rw,H)}
+ c.setLineDash([6,8]);c.beginPath();for(let j=0;j<rows;j++){const y=oy+j*sp;c.moveTo(0,y);c.lineTo(W,y)}for(let i=0;i<cols;i++){const x=ox+i*sp;c.moveTo(x,0);c.lineTo(x,H)}c.stroke();c.setLineDash([]);
+ // hospital
+ const hp=g.hosp;c.save();c.shadowColor='#3dff9a';c.shadowBlur=18;c.strokeStyle='#3dff9a';c.lineWidth=2;c.strokeRect(hp.x+rw*.7,hp.y-rw*.7-sp*.32,sp*.32,sp*.32);c.fillStyle='#3dff9a';const hx=hp.x+rw*.7+sp*.16,hy=hp.y-rw*.7-sp*.16,s=sp*.05;c.fillRect(hx-s,hy-s*3,s*2,s*6);c.fillRect(hx-s*3,hy-s,s*6,s*2);c.restore();
+ // route
+ const a=g.amb;if(a){const p=vpos(a);c.save();c.strokeStyle='#19f0ff';c.shadowColor='#19f0ff';c.shadowBlur=10;c.lineWidth=2;c.setLineDash([4,7]);c.lineDashOffset=-t*30;c.beginPath();c.moveTo(p.x,p.y);for(let k=a.k+1;k<a.pts.length;k++)c.lineTo(a.pts[k].x,a.pts[k].y);c.stroke();c.restore()}
+ // lights
+ const onRoute=new Set(a?a.pts.slice(a.k+1).map(p=>p.node).filter(Boolean):[]);
+ for(const k in g.lights){const l=g.lights[k],x=ox+l.i*sp,y=oy+l.j*sp,r=rw*.55;
+  const gH=l.axis==='H',cG='#3dff9a',cR='#ff3b5c';c.save();c.shadowBlur=8;
+  c.fillStyle=gH?cG:cR;c.shadowColor=c.fillStyle;c.fillRect(x-r-4,y-2,4,4);c.fillRect(x+r,y-2,4,4);
+  c.fillStyle=gH?cR:cG;c.shadowColor=c.fillStyle;c.fillRect(x-2,y-r-4,4,4);c.fillRect(x-2,y+r,4,4);c.restore();
+  if(l.glitch){c.strokeStyle=`rgba(255,176,32,${.4+.3*Math.sin(t*6)})`;c.lineWidth=2;c.beginPath();c.arc(x,y,r+8,0,7);c.stroke()}
+  if(onRoute.has(k)){c.strokeStyle='#19f0ff55';c.lineWidth=1;c.beginPath();c.arc(x,y,r+13,0,7);c.stroke()}
+  if(l.hack>0){c.strokeStyle='#ff2bd6';c.lineWidth=3;c.beginPath();c.arc(x,y,r+8,-Math.PI/2,-Math.PI/2+l.hack/.35*Math.PI*2);c.stroke()}}
+ // vehicles
+ for(const v of g.veh){const p=vpos(v),d=vdir(v),ang=Math.atan2(d.y,d.x);c.save();c.translate(p.x,p.y);c.rotate(ang);
+  if(v.amb){const fl=Math.floor(t*6)%2;c.shadowColor=fl?'#ff3b5c':'#2b7bff';c.shadowBlur=22;c.fillStyle='#ffffff';c.fillRect(-sp*.09,-sp*.045,sp*.18,sp*.09);c.fillStyle=fl?'#ff3b5c':'#2b7bff';c.fillRect(-sp*.02,-sp*.045,sp*.04,sp*.09)}
+  else{c.shadowColor=v.col;c.shadowBlur=10;c.fillStyle=v.col;c.fillRect(-sp*.06,-sp*.035,sp*.12,sp*.07);c.fillStyle='#fff8';c.fillRect(sp*.04,-sp*.03,sp*.02,sp*.06)}
+  c.restore()}
+}
+function drawEcg(){const w=ecg.width,h=ecg.height,v=G?G.vit:100,col=v>50?'#3dff9a':v>25?'#ffb020':'#ff3b5c';ex.fillStyle='#03060d';ex.fillRect(0,0,w,h);ex.strokeStyle=col;ex.shadowColor=col;ex.shadowBlur=6;ex.lineWidth=2;ex.beginPath();
+ const sp=1.4+(100-v)/60;for(let x=0;x<w;x++){const ph=((x/w*3+beats*sp)%1),y=ph>.45&&ph<.5?h*.1:ph>.5&&ph<.55?h*.9:h/2;x?ex.lineTo(x,y):ex.moveTo(x,y)}ex.stroke();$('vnum').textContent=Math.ceil(v);$('vnum').style.color=col}
+function cityLoop(now){if(!G||G.done)return;const dt=Math.min(.05,(now-clast)/1000);clast=now;beats+=dt;cityStep(dt);if(!G||G.done)return;cityDraw();drawEcg();$('ctime').textContent=G.t.toFixed(1);$('chacks').textContent=G.hacks;craf=requestAnimationFrame(cityLoop)}
+function cityEnd(won){const g=G;g.done=true;cityDraw();drawEcg();
+ const rank=won?(g.vit>60?'Ghost':g.vit>30?'Operator':'Rookie'):'—';
+ if(won){chime();clog('Patient delivered. Vitals stable.','ok')}else{cbeep(160,1.2,'sine',.06);clog('Patient lost.','bad')}
+ panel(`<div class="cbox"><h2 class="${won?'ok':'bad'}">${won?'PATIENT STABLE':'FLATLINE'}</h2><p>${won?`The ambulance reached St Lucien General with ${Math.ceil(g.vit)}% vitals. Rank: <b class="k">${rank}</b>.`:`The ambulance didn't make it. The traffic AI won this round.`}</p>
+ <div class="cstats"><div><b>${g.t.toFixed(1)}s</b>Time</div><div><b>${g.hacks}</b>Lights hacked</div><div><b>${Math.ceil(g.vit)}%</b>Vitals</div></div>
+ <div class="cbtns"><button class="cbtn" type="button" data-lv="${g.n}">Retry</button>${won&&g.n<2?`<button class="cbtn mg" type="button" data-lv="${g.n+1}">Level ${g.n+2}<small>${LV[g.n+1].name}</small></button>`:''}<button class="cbtn ghost" type="button" data-jackout>Jack out</button></div></div>`)}
+cv.addEventListener('pointerdown',e=>{if(!G||G.done)return;const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;let best=null,bd=G.sp*.42;
+ for(const k in G.lights){const l=G.lights[k],d=Math.hypot(G.ox+l.i*G.sp-x,G.oy+l.j*G.sp-y);if(d<bd){bd=d;best=l}}
+ if(best&&best.hack===0&&!(best.cd>0)){best.hack=.001;cbeep(700,.03,'square',.02)}});
+function jackOut(){if(G)G.done=true;G=null;cancelAnimationFrame(craf);$('cpanel').classList.remove('on');show('desk')}
+$('cexit').onclick=jackOut;
+$('city').addEventListener('click',e=>{const b=e.target.closest('[data-lv]');if(b){startLevel(+b.dataset.lv);return}if(e.target.closest('[data-jackout]'))jackOut()});
+/* boot */
+async function type(el,lines){for(const [t,ms] of lines){if(skip)break;el.textContent+=t;beep(1600,.01,'square',.015);await wait(ms)}}
+async function boot(){
+ if(booting)return;booting=true;skip=false;Object.values(wins).forEach(w=>w.remove());for(const k in wins)delete wins[k];
+ const crt=$('crt');crt.classList.remove('poff');show('bios');crt.classList.add('pon');setTimeout(()=>crt.classList.remove('pon'),700);
+ beep(60,.4,'sine',.08);const b=$('bios');b.innerHTML='';const pre=document.createElement('div');b.appendChild(pre);
+ const hint=document.createElement('div');hint.className='hint';hint.textContent='Tap or press Esc to skip';b.appendChild(hint);
+ await type(pre,[['OLUSESI BIOS v1.0  (C) 2026 Abdulmalik Systems\n',250],['CPU: Ambition-486 @ 66 MHz\n',200]]);
+ for(let m=0;m<=640&&!skip;m+=64){pre.textContent=pre.textContent.replace(/Memory test: .*\n?$/,'')+`Memory test: ${m}K${m===640?' OK\n':''}`;beep(2200,.008,'square',.01);await wait(40)}
+ await type(pre,[['Detecting drives…\n',350],['  Drive A: PROJECTS (13 found)\n',180],['  Drive B: IDEAS (too many)\n',180],['  Drive C: SLEEP (not found)\n',300],['\nBooting ABDULMALIK OS',300],['.',250],['.',250],['.\n',300]]);
+ show('splash');const lb=$('lbar');lb.innerHTML='<i></i>'.repeat(14);const bars=[...lb.children],msgs=['Starting up…','Loading projects…','Warming up the CRT…','Compiling personality…','Almost there…'];
+ for(let i=0;i<bars.length;i++){bars[i].style.opacity=1;$('lmsg').textContent=msgs[Math.floor(i/3)];await wait(skip?15:110+Math.random()*120)}
+ await wait(skip?50:300);show('desk');chime();tick();booting=false;
+}
+function tick(){const d=new Date();$('clk').textContent=d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}
+setInterval(tick,15000);
+async function shutdown(){closeMenu();beep(400,.25,'triangle',.05);beep(200,.4,'triangle',.05,.2);const crt=$('crt');crt.classList.add('poff');await wait(750);show('bye');crt.classList.remove('poff');crt.classList.add('pon');setTimeout(()=>crt.classList.remove('pon'),700)}
+/* events */
+const power=()=>{if($('off').classList.contains('on')||$('bye').classList.contains('on'))boot();else if($('bsod').classList.contains('on'))boot();else if(booting)skip=true};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&booting){skip=true;return}if(!$('desk').classList.contains('on')&&!booting)power()});
+['off','bye','bsod','bios','splash'].forEach(id=>$(id).addEventListener('click',power));
+function closeMenu(){$('drop').classList.remove('on');$('mlogo').setAttribute('aria-expanded','false')}
+$('mlogo').onclick=e=>{e.stopPropagation();const on=!$('drop').classList.contains('on');$('drop').classList.toggle('on',on);$('mlogo').setAttribute('aria-expanded',on)};
+document.addEventListener('click',e=>{if(!e.target.closest('#drop,#mlogo'))closeMenu();
+ const o=e.target.closest('[data-open]');if(o){closeMenu();APPS[o.dataset.open]?.()}
+ const p=e.target.closest('[data-proj]');if(p){const P=PROJ.find(x=>x.id===p.dataset.proj);launch('p-'+P.id,P.name,projHTML(P),460)}
+ const th=e.target.closest('[data-th]');if(th)setTheme(th.dataset.th);
+ if(e.target.closest('[data-fx]')){document.body.classList.toggle('nofx');wins.settings.querySelector('.wb').innerHTML=settingsHTML()}});
+$('snd').onclick=()=>{sound=!sound;$('snd').textContent='Sound: '+(sound?'on':'off')};
+$('restart').onclick=()=>{closeMenu();boot()};$('shut').onclick=shutdown;
+$('off').focus();
+}
+</script>
+</body>
+</html>
