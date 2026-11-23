@@ -73,7 +73,12 @@ body.nofx #fx{display:none}
 .wb h2{font:700 30px/1 "Pixelify Sans",sans-serif;margin:0 0 8px}
 .wb p{margin:0 0 10px}
 .tag{display:inline-block;border:2px solid var(--ink);padding:1px 8px;font-size:15px;margin:0 6px 6px 0}
-.tag.live{background:#5cff8a}.tag.soon{background:#ffd76a}
+.tag.live{background:#5cff8a}.tag.built{background:#9fe3ff}.tag.soon{background:#ffd76a}
+.hi{margin:0 0 10px;padding-left:20px}.hi li{margin:2px 0}
+.shots{display:flex;gap:10px;overflow-x:auto;padding:4px 0 10px}.shots img{height:220px;width:auto;border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink);display:block}
+.warn{border:2px dashed var(--ink);background:#ffe7a3;padding:8px 10px}
+.acts{display:flex;flex-wrap:wrap;gap:10px}
+.appframe{width:100%;height:100%;border:0;display:block;background:#fff}
 .btn{font:600 17px "Pixelify Sans",sans-serif;border:2px solid var(--ink);background:var(--win);box-shadow:3px 3px 0 var(--ink);padding:8px 16px;min-height:44px;cursor:pointer;color:var(--ink);text-decoration:none;display:inline-flex;align-items:center}
 .btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
 .folder{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
@@ -141,6 +146,7 @@ body.nofx #fx{display:none}
     <div class="drop" id="drop" role="menu">
       <button type="button" data-open="aboutos" role="menuitem">About this computer</button>
       <button type="button" data-open="settings" role="menuitem">Control panel</button>
+      <button type="button" id="classic" role="menuitem">Classic portfolio view ↗</button>
       <button type="button" id="snd" role="menuitem">Sound: on</button><hr>
       <button type="button" id="restart" role="menuitem">Restart</button>
       <button type="button" id="shut" role="menuitem">Shut down</button>
@@ -158,23 +164,26 @@ body.nofx #fx{display:none}
 <script>
 {
 /* ===== EDIT YOUR CONTENT HERE ===== */
-const ME={name:'Abdulmalik Olusesi',role:'Software Engineering student · founder of Metic Apparel',email:'abdulmalikayomide40@gmail.com',github:'Bhigayo',linkedin:'Abdulmalik Olusesi'};
+const ME={name:'Abdulmalik Olusesi',role:'Software engineering student and founder',email:'abdulmalikayomide40@gmail.com',github:'Bhigayo',linkedin:'https://www.linkedin.com/in/abdulmalik-olusesi-bb4b84235'};
+const GH='https://github.com/Bhigayo/';
 const PROJ=[
- {id:'family',name:'The Family',ic:'doc',status:'live',tech:'JavaScript · parsing · canvas UI',blurb:'Turns a WhatsApp group chat export into crime-family case files: the Don, the Ghost, the Night Shift. Prints a tabloid front page to share. Runs entirely in the browser; the chat never leaves your phone.',link:'/family/'},
- {id:'velvet',name:'Velvet Room',ic:'glass',status:'live',tech:'JavaScript · game design · writing',blurb:'A 1968 murder-mystery party kit. The host desk sends secret invites; each guest gets a case file whose clues unlock round by round with code words. Want a look behind the scenes? Host code: BOURBON.',link:'/velvet/'},
- {id:'afterlife',name:'Afterlife',ic:'city',status:'live',tech:'Simulation · utility AI · canvas',blurb:'A living city of 20 residents with needs, jobs, money, memories and relationships, none of it scripted. Includes a God mode and a newspaper that prints every midnight.',link:'/afterlife/'},
- {id:'citylink',name:'CITYLINK',ic:'city',status:'live',tech:'Canvas · traffic simulation · game design',blurb:'Jack into a neon city from a 1995 computer. Mission one, CODE RED: hack traffic lights in real time to get an ambulance to hospital before the patient flatlines. Fictional city, no real systems.',open:'citylink'},
- {id:'casefile',name:'CASEFILE',ic:'mag',status:'live',tech:'Narrative design · game systems · JavaScript',blurb:'Case 047: The Last Transmission. A solo detective thriller in Lucien City, 2049. Search the crime scene, pull city records, break suspects\' lies by presenting evidence, decrypt the victim\'s last message, and accuse the killer before Vaultline purges the case.',link:'/casefile/'},
- {id:'archive',name:'The Archive',ic:'vault',status:'soon',tech:'3D CSS · storage · uploads',blurb:'A museum of my life as a heist: six wings behind firewalls, a trace meter, security sweeps and redacted files you decrypt. Exhibits are being filed now.'},
- {id:'ebt',name:'Eatsbythia',ic:'bag',status:'soon',tech:'Web app · ordering · dashboard',blurb:'A digital ordering system and kitchen dashboard for a home-based Nigerian food business.'},
- {id:'ajo',name:'Ajo',ic:'coin',status:'soon',tech:'Web app',blurb:'A tracker for ajo / esusu savings groups: who has paid, whose turn it is.'},
- {id:'saldo',name:'Saldo',ic:'coin',status:'soon',tech:'Web app · finance',blurb:'Answers one question: how much can I safely spend until payday?'},
- {id:'wardrobe',name:'Wardrobe',ic:'shirt',status:'soon',tech:'Web app',blurb:'Photograph your clothes and get a daily outfit for the weather and the occasion.'},
- {id:'director',name:'Director',ic:'cam',status:'soon',tech:'AI · web app',blurb:'An AI creative director for planning shoots: shot lists, framing and gimbal moves.'},
- {id:'quickfire',name:'Quickfire',ic:'joy',status:'soon',tech:'Realtime · multiplayer',blurb:'A party quiz game: the big screen hosts and friends play on their phones.'},
- {id:'britlife',name:'Brit Life',ic:'city',status:'soon',tech:'3D · multiplayer',blurb:'A 3D multiplayer life-sim set in Birmingham, starting with Digbeth.'},
- {id:'till',name:'Till System',ic:'bag',status:'soon',tech:'Web app · POS',blurb:'A self-checkout and staff till, inspired by real store tills.'},
- {id:'washer',name:'Eco Washer',ic:'chip',status:'soon',tech:'Arduino · Tinkercad',blurb:'University coursework: a smart, eco-friendly washing machine controller.'}];
+ {id:'eatsbythia',name:'Eatsbythia',ic:'bag',status:'Live',tech:['JavaScript','Supabase','PostgreSQL','Stripe','Deno','GitHub Actions'],blurb:'Online ordering, card payments and a live kitchen dashboard for a home-based Nigerian food business in Manchester. Customers order from their phone and the kitchen sees it instantly.',hi:['Stripe card payments with webhooks','Live kitchen dashboard over Supabase Realtime','Order tracking page for customers'],link:'/eatsbythia/',code:GH+'eatsbythia',cs:'/classic/eatsbythia.html',shots:['eatsbythia-menu-mobile','eatsbythia-kitchen','eatsbythia-tracking-mobile'],warn:'This is a real, working business. Please look around, but don\'t place test orders.'},
+ {id:'saldo',name:'Saldo',ic:'coin',status:'Live',tech:['React','TypeScript','Vitest','PWA','GitHub Actions'],blurb:'A personal finance app that answers one question: how much can I safely spend until payday? It works offline and installs on a phone.',hi:['Safe-to-spend maths with tests','Offline-first PWA','Budgets and bills in one view'],link:'/saldo/',code:GH+'saldo',cs:'/classic/saldo.html',shots:['saldo-overview','saldo-budgets','saldo-phone'],embed:true},
+ {id:'citylink',name:'CITYLINK',ic:'city',status:'Live',tech:['Canvas','Traffic simulation','Game design'],blurb:'Jack into a neon city from a 1995 computer. Mission one, CODE RED: hack traffic lights in real time to get an ambulance to hospital before the patient flatlines. Fictional city, no real systems.',hi:['Lane-following traffic with queues and stop lines','Balance-tested with an idle player and a bot','Built into this OS'],open:'citylink'},
+ {id:'casefile',name:'CASEFILE',ic:'mag',status:'Live',tech:['JavaScript','Narrative design','Game systems'],blurb:'Case 047: The Last Transmission. A solo detective thriller: search the scene, pull records, break suspects\' lies with evidence, decrypt the last message and accuse the killer before the case is purged.',hi:['Contradiction-based interrogation','Two decryption puzzles','Purge meter tuned so guessing loses'],link:'/casefile/',embed:true},
+ {id:'quickfire',name:'Quickfire',ic:'joy',status:'Live',tech:['React','TypeScript','Supabase Realtime'],blurb:'A Jackbox-style party game. Open it on a laptop or TV, friends scan a QR code and play on their phones: a speed quiz and Guess the Lie, with custom question packs.',hi:['Real-time rooms for a whole party','Speed and streak scoring','Custom question packs'],link:'/quickfire/',code:GH+'quickfire',embed:true},
+ {id:'wardrobe',name:'Wardrobe',ic:'shirt',status:'Live',tech:['React','TypeScript','IndexedDB','Open-Meteo','PWA','Vitest'],blurb:'Photograph your clothes once and get an outfit every morning, picked for the weather, the occasion and what you haven\'t worn lately. Colours are read from the photos.',hi:['Outfit scoring: warmth, rain, occasion, colour harmony','Colour detection from photos','Everything stored on the device'],link:'/wardrobe/',code:GH+'wardrobe',embed:true},
+ {id:'director',name:'Director',ic:'cam',status:'Live',tech:['React','TypeScript','SVG','Claude API','PWA','Vitest'],blurb:'Describe a shoot and get a shot list with framing sketches, camera moves, gimbal tips and golden-hour times, then work through it shot by shot on the day.',hi:['Shot-list planner that reads the brief','Golden-hour times from solar maths','Optional AI plans with Claude'],link:'/director/',code:GH+'director',embed:true},
+ {id:'family',name:'The Family',ic:'doc',status:'Live',tech:['JavaScript','Parsing','UI design'],blurb:'Turns a WhatsApp group chat export into crime-family case files: the Don, the Ghost, the Night Shift. Prints a tabloid front page to share. Runs entirely in the browser; the chat never leaves your phone.',hi:['Parses iPhone and Android exports, including .zip','Roles assigned by thresholds, one per member','Shareable newspaper front page'],link:'/family/',embed:true},
+ {id:'velvet',name:'Velvet Room',ic:'glass',status:'Live',tech:['JavaScript','Game design','Writing'],blurb:'A 1968 murder-mystery party kit. The host desk sends secret invites; each guest gets a case file whose clues unlock round by round with code words. Host code: BOURBON.',hi:['Secret per-guest links','Code-word round unlocks','Sealed accusations and a reveal'],link:'/velvet/',embed:true},
+ {id:'afterlife',name:'Afterlife',ic:'city',status:'Live',tech:['Simulation','Utility AI','Canvas'],blurb:'A living city of 20 residents with needs, jobs, money, memories and relationships, none of it scripted. Includes a God mode and a newspaper that prints every midnight.',hi:['Utility-AI decisions with personality traits','Emergent friendships and feuds','God mode: rumours, parties, shutdowns'],link:'/afterlife/',embed:true},
+ {id:'ajo',name:'Ajo',ic:'coin',status:'Built',tech:['React','TypeScript','IndexedDB','Vitest'],blurb:'A tracker for ajo, esusu and susu rotating savings groups: who\'s paid, whose turn it is, and WhatsApp reminders and group updates in one tap.',hi:['Payout schedules that handle short months','Part payments and late tracking','One-tap WhatsApp reminders'],link:'/ajo/',code:GH+'ajo',embed:true},
+ {id:'handsfree',name:'Hands Free',ic:'hand',status:'Built',tech:['React','TypeScript','MediaPipe','Web Audio','Vitest'],blurb:'Gesture control through a webcam: swipe through slides, DJ an Amapiano groove with a pinch, and draw neon lines in the air. Hand tracking runs entirely in the browser.',hi:['Gesture recognition from 21 hand landmarks','A live synth and sequencer in Web Audio','The camera never leaves the device'],link:'/hands-free/',code:GH+'hands-free'},
+ {id:'draw',name:'Draw Together',ic:'brush',status:'Built',tech:['React','TypeScript','Canvas','Supabase Realtime','Vitest'],blurb:'A shared drawing board that syncs live between phones: strokes appear while they\'re drawn, with cursors, presence, pressure-sensitive pens and undo that never touches anyone else\'s work.',hi:['Conflict-free, append-only board history','Live strokes at 20 updates a second','Apple Pencil pressure and palm rejection'],link:'/draw-together/',code:GH+'draw-together',embed:true},
+ {id:'archive',name:'The Archive',ic:'vault',status:'In progress',tech:['3D CSS','Storage','Uploads'],blurb:'A museum of my life as a heist: six wings behind firewalls, a trace meter, security sweeps and redacted files you decrypt. Exhibits are being filed now.',hi:['3D neon corridors in pure CSS','Firewall puzzles and scan sweeps','Curator mode for uploads']},
+ {id:'britlife',name:'Birmingham crime drama',ic:'city',status:'In progress',tech:['React','TypeScript','Three.js','React Three Fiber','Blender'],blurb:'A story-driven 3D open-world game that runs in the browser, set in Birmingham\'s Digbeth, with multiplayer, driving and a story told through missions.',hi:['3D world in Three.js','Multiplayer','Characters and clothing from Blender']},
+ {id:'till',name:'Till System',ic:'bag',status:'In progress',tech:['Web app','POS'],blurb:'A self-checkout and staff till, inspired by real store tills.',hi:[]},
+ {id:'washer',name:'Eco Washer',ic:'chip',status:'In progress',tech:['Arduino','Tinkercad'],blurb:'University coursework: a smart, eco-friendly washing machine controller.',hi:[]}];
 /* ================================== */
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -199,9 +208,11 @@ shirt:['..###..###..','.####..####.','############','############','.###....###.
 cam:['............','...####.....','############','#..........#','#...####...#','#..##..##..#','#..#....#..#','#..##..##..#','#...####...#','#..........#','############','............'],
 joy:['.....##.....','.....##.....','......#.....','......#.....','..########..','.##########.','##.#....##.#','#...#..#..##','##.#....##.#','############','.##......##.','............'],
 mag:['....####....','..##....##..','.#........#.','.#........#.','#..........#','#..........#','.#........#.','.#........#.','..##....###.','....####.###','..........##','...........#'],
+hand:['....#.#.....','...#.#.#....','...#.#.#.#..','...#.#.#.#..','.#.#.#.#.#..','.#.#######..','.##.......#.','..#.......#.','..#......#..','...#.....#..','....#####...','............'],
+brush:['.........###','........###.','.......###..','......###...','.....###....','....###.....','...##.......','..###.......','.####.......','#####.......','####........','............'],
 vault:['############','#..........#','#.########.#','#.#......#.#','#.#..##..#.#','#.#.####.#.#','#.#.####.#.#','#.#..##..#.#','#.#......#.#','#.########.#','#..........#','############'],
 chip:['.#.#.#.#.#..','############','#..........#','##.######.##','#..#....#..#','##.#....#.##','#..#....#..#','##.######.##','#..........#','############','.#.#.#.#.#..','............']};
-const COLS={folder:'#ffd76a',doc:'#ffffff',term:'#2b2b2b',card:'#9fe3ff',bomb:'#ff5f3a',trash:'#d9d9d9',gear:'#c9b2ff',city:'#5cff8a',glass:'#ff8fb1',bag:'#ffb347',coin:'#ffd76a',shirt:'#8fd3ff',cam:'#e6e6e6',joy:'#b2ff8f',chip:'#7ee0c3',mag:'#19f0ff',vault:'#ff2bd6'};
+const COLS={folder:'#ffd76a',doc:'#ffffff',term:'#2b2b2b',card:'#9fe3ff',bomb:'#ff5f3a',trash:'#d9d9d9',gear:'#c9b2ff',city:'#5cff8a',glass:'#ff8fb1',bag:'#ffb347',coin:'#ffd76a',shirt:'#8fd3ff',cam:'#e6e6e6',joy:'#b2ff8f',chip:'#7ee0c3',mag:'#19f0ff',vault:'#ff2bd6',hand:'#ffd7a8',brush:'#ff6f91'};
 function icon(k){const g=PIX[k],c=COLS[k];let r='';g.forEach((row,y)=>[...row].forEach((ch,x)=>{if(ch==='#')r+=`<rect x="${x}" y="${y}" width="1" height="1"/>`}));
  return `<svg viewBox="-1 -1 14 14" aria-hidden="true"><rect x="0" y="0" width="12" height="12" fill="none"/><g fill="${c}" stroke="#111" stroke-width=".15">${r}</g></svg>`}
 const DESK=[['about','About me.txt','doc'],['projects','Projects','folder'],['terminal','Terminal','term'],['contact','Contact.card','card'],['citylink','CITYLINK.exe','city'],['casefile','CASEFILE.exe','mag'],['settings','Control panel','gear'],['dno','DO_NOT_OPEN.exe','bomb'],['trash','Trash','trash']];
@@ -226,11 +237,16 @@ async function launch(id,title,html,w,h,slow){
  if(slow){const l=openWin('_load','Loading',`<div class="loading"><div class="hg"></div><div>Loading ${esc(title)}…</div><div class="mini"><i id="mb"></i></div></div>`,320);
   await wait(30);const mb=l.querySelector('#mb');if(mb)mb.style.width='100%';await wait(650);l.remove();delete wins._load}
  return openWin(id,title,html,w,h)}
-const projHTML=p=>`<h2>${esc(p.name)}</h2><p><span class="tag ${p.status}">${p.status==='live'?'Live':'Case study soon'}</span><span class="tag">${esc(p.tech)}</span></p><p>${esc(p.blurb)}</p>${p.link?`<p><a class="btn" href="${p.link}" target="_blank" rel="noopener">Launch ${esc(p.name)} ↗</a></p>`:''}${p.open?`<p><button class="btn" type="button" data-open="${p.open}">Run ${esc(p.name)}</button></p>`:''}`;
+const projHTML=p=>`<h2>${esc(p.name)}</h2><p><span class="tag ${p.status==='Live'?'live':p.status==='Built'?'built':'soon'}">${p.status}</span>${p.tech.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</p><p>${esc(p.blurb)}</p>
+${p.hi.length?`<ul class="hi">${p.hi.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}
+${p.shots?`<div class="shots">${p.shots.map(s=>`<a href="/img/${s}.webp" target="_blank" rel="noopener"><img src="/img/${s}.webp" alt="${esc(p.name)} screenshot" loading="lazy"></a>`).join('')}</div>`:''}
+${p.warn?`<p class="warn">${esc(p.warn)}</p>`:''}
+<p class="acts">${p.open?`<button class="btn" type="button" data-open="${p.open}">Run ${esc(p.name)}</button>`:''}${p.link&&p.embed?`<button class="btn" type="button" data-run="${p.id}">Open in a window</button>`:''}${p.link?`<a class="btn" href="${p.link}" target="_blank" rel="noopener">${p.embed?'New tab':'Launch'} ↗</a>`:''}${p.cs?`<a class="btn" href="${p.cs}" target="_blank" rel="noopener">Case study ↗</a>`:''}${p.code?`<a class="btn" href="${p.code}" target="_blank" rel="noopener">Code ↗</a>`:''}</p>`;
+function runApp(p){const w=Math.min(1000,innerWidth-40),hh=Math.min(680,innerHeight-90);launch('run-'+p.id,p.name,`<iframe class="appframe" src="${p.link}" title="${esc(p.name)}" allow="clipboard-write"></iframe>`,w,hh,true).then?.(()=>{const el=wins['run-'+p.id];if(el)el.querySelector('.wb').style.padding='0'})}
 const APPS={
  about:()=>launch('about','About me.txt',`<h2>Hello.</h2><p>I'm ${esc(ME.name)}. ${esc(ME.role)}.</p><p>I build things that are fun to use: games, simulations, tools for small businesses, and weird experiments that look like they escaped from a film set. This computer is one of them.</p><p>Background: Level 3 Software Development (D*DD), now studying BSc Software Engineering at Birmingham City University. Before that: retail, HR and office admin, and hospitality.</p><p>Open the <b>Projects</b> folder, or try the <b>Terminal</b>. Type <b>help</b>.</p>`,500),
  projects:()=>launch('projects','Projects',`<div class="folder">${PROJ.map(p=>`<button class="ico" type="button" data-proj="${p.id}">${icon(p.ic)}<span>${esc(p.name)}</span></button>`).join('')}</div>`,560,null,true),
- contact:()=>launch('contact','Contact.card',`<div class="card"><h2>${esc(ME.name)}</h2><p>${esc(ME.role)}</p><p>Email: <a href="mailto:${ME.email}">${ME.email}</a></p><p>GitHub: <a href="https://github.com/${ME.github}" target="_blank" rel="noopener">github.com/${ME.github}</a></p><p>LinkedIn: ${esc(ME.linkedin)}</p></div>`,440),
+ contact:()=>launch('contact','Contact.card',`<div class="card"><h2>${esc(ME.name)}</h2><p>${esc(ME.role)}</p><p>Email: <a href="mailto:${ME.email}">${ME.email}</a></p><p>GitHub: <a href="https://github.com/${ME.github}" target="_blank" rel="noopener">github.com/${ME.github}</a></p><p>LinkedIn: <a href="${ME.linkedin}" target="_blank" rel="noopener">Abdulmalik Olusesi</a></p><p><a href="/classic/" target="_blank" rel="noopener">Prefer a plain page? Classic portfolio ↗</a></p></div>`,440),
  citylink:()=>cityOpen(),
  casefile:()=>{const P=PROJ.find(p=>p.id==='casefile');launch('p-casefile',P.name,projHTML(P),460)},
  trash:()=>launch('trash','Trash',`<p><b>old_ideas.txt</b></p><p class="term" style="min-height:0;color:var(--ph)">- another dashboard (vetoed)<br>- to-do app #47 (vetoed)<br>- sleep (postponed)</p>`,380),
@@ -253,7 +269,7 @@ function run(raw){const c=raw.trim(),[cmd,...rest]=c.split(/\s+/),arg=rest.join(
  switch(cmd.toLowerCase()){
   case 'help':say('help        this list\nwhoami      who built this\nls          list projects\nopen <name> open a project or app\ncontact     how to reach me\ndate        today\ntheme <teal|midnight|upside|amber>\nmatrix      you know what this does\nhack        try it\nclear       clear the screen');break;
   case 'whoami':say(`${ME.name}\n${ME.role}`);break;
-  case 'ls':case 'dir':say(PROJ.map(p=>`${p.status==='live'?'[LIVE]':'[SOON]'} ${p.id.padEnd(10)} ${p.name}`).join('\n'));break;
+  case 'ls':case 'dir':say(PROJ.map(p=>`[${p.status.toUpperCase()}]`.padEnd(14)+`${p.id.padEnd(11)} ${p.name}`).join('\n'));break;
   case 'open':if(P){say(`Opening ${P.name}…`);launch('p-'+P.id,P.name,projHTML(P),460)}else if(APPS[arg]&&arg!=='dno'){say(`Opening ${arg}…`);APPS[arg]()}else say(`Not found: ${arg||'(nothing)'}. Try "ls".`);break;
   case 'contact':say(`email   ${ME.email}\ngithub  github.com/${ME.github}`);break;
   case 'date':say(new Date().toDateString());break;
@@ -404,9 +420,11 @@ function closeMenu(){$('drop').classList.remove('on');$('mlogo').setAttribute('a
 $('mlogo').onclick=e=>{e.stopPropagation();const on=!$('drop').classList.contains('on');$('drop').classList.toggle('on',on);$('mlogo').setAttribute('aria-expanded',on)};
 document.addEventListener('click',e=>{if(!e.target.closest('#drop,#mlogo'))closeMenu();
  const o=e.target.closest('[data-open]');if(o){closeMenu();APPS[o.dataset.open]?.()}
+ const rn=e.target.closest('[data-run]');if(rn){runApp(PROJ.find(x=>x.id===rn.dataset.run));return}
  const p=e.target.closest('[data-proj]');if(p){const P=PROJ.find(x=>x.id===p.dataset.proj);launch('p-'+P.id,P.name,projHTML(P),460)}
  const th=e.target.closest('[data-th]');if(th)setTheme(th.dataset.th);
  if(e.target.closest('[data-fx]')){document.body.classList.toggle('nofx');wins.settings.querySelector('.wb').innerHTML=settingsHTML()}});
+$('classic').onclick=()=>{closeMenu();window.open('/classic/','_blank')};
 $('snd').onclick=()=>{sound=!sound;$('snd').textContent='Sound: '+(sound?'on':'off')};
 $('restart').onclick=()=>{closeMenu();boot()};$('shut').onclick=shutdown;
 $('off').focus();

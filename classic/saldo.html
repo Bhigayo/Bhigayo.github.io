@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Saldo case study · Abdulmalik Olusesi</title>
+<meta name="description" content="How I built Saldo, a tested personal finance app that works out how much you can safely spend until payday.">
+<meta property="og:title" content="Saldo case study · Abdulmalik Olusesi">
+<meta property="og:image" content="images/saldo-overview.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0d12'/%3E%3Cpath d='M16 6l2.6 6.9L26 13.5l-5.7 4.6L22 25.5 16 21.4 10 25.5l1.7-7.4L6 13.5l7.4-.6z' fill='%23f0b65a'/%3E%3C/svg%3E">
+</head>
+<body class="cs">
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="./">ABDULMALIK OLUSESI</a>
+    <nav class="nav" aria-label="Main">
+      <a href="./#work">Work</a>
+      <a href="./#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="cs-hero">
+    <div class="wrap">
+      <a class="back" href="./#work">← All projects</a>
+      <p class="eyebrow">Case study</p>
+      <h1>Saldo</h1>
+      <p class="lead">A personal finance app that answers one question: how much can I safely spend until payday?</p>
+      <dl class="meta">
+        <div><dt>Role</dt><dd>Sole developer</dd></div>
+        <div><dt>Type</dt><dd>Personal project</dd></div>
+        <div><dt>Platform</dt><dd>Web and phone (PWA)</dd></div>
+        <div><dt>Status</dt><dd>Live</dd></div>
+      </dl>
+      <div class="actions">
+        <a class="btn primary" href="https://bhigayo.github.io/saldo/">Try the app ↗</a>
+        <a class="btn" href="https://github.com/Bhigayo/saldo">View the code ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap narrow">
+      <h2>The problem</h2>
+      <p>Banking apps tell you your balance, but your balance isn't what you can spend. Rent, bills and the money you mean to save are already spoken for, and payday might be three weeks away.</p>
+      <p>I wanted one number that takes all of that into account, and a daily figure that tells me whether today's spending keeps me on track.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="narrow">
+        <h2>What it does</h2>
+        <ul>
+          <li><strong>Safe to spend and a daily allowance.</strong> Income, minus bills and the savings target, minus what's been spent this month, spread across the days until payday.</li>
+          <li><strong>Bills and subscriptions.</strong> Monthly, weekly and yearly bills are converted to a monthly cost. The Subscription Guardian flags free trials before they start charging.</li>
+          <li><strong>Category budgets and savings goals.</strong> Overspent categories turn red, and each savings goal shows how much to put away every month to hit its deadline.</li>
+          <li><strong>"Can I afford this?"</strong> Type in a price and see whether it fits before you buy.</li>
+        </ul>
+      </div>
+
+      <div class="shots" style="margin-top:40px">
+        <figure>
+          <img src="images/saldo-budgets.webp" alt="Category budgets with progress bars for food, transport, shopping, entertainment, health and bills" width="1600" height="1075" loading="lazy">
+          <figcaption>Category budgets. The app starts with sample data, so nothing personal is shown.</figcaption>
+        </figure>
+        <div class="phone-stack">
+          <figure>
+            <img src="images/saldo-phone.webp" alt="Saldo on a phone showing the safe-to-spend amount" width="780" height="1560" loading="lazy">
+            <figcaption>On a phone, installed like an app</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="narrow">
+        <h2>Key decisions</h2>
+      </div>
+      <div class="decisions">
+        <div class="decision">
+          <h3>The money maths is tested</h3>
+          <p>All the calculations live in small functions with no UI code, covered by 36 unit tests. GitHub Actions runs them on every push, and nothing is deployed if one fails.</p>
+        </div>
+        <div class="decision">
+          <h3>Dates are treated as UK days</h3>
+          <p>JavaScript reads "2026-10-07" as midnight in UTC, which is 1am in summer. The tests run in UK time and cover paydays in short months and the clocks changing.</p>
+        </div>
+        <div class="decision">
+          <h3>Your data stays on your device</h3>
+          <p>There are no accounts and no server. Everything is saved in the browser, which keeps people's finances private and the app free to run.</p>
+        </div>
+        <div class="decision">
+          <h3>It works like a phone app</h3>
+          <p>A web app manifest and a service worker let it be added to a home screen and open offline after the first visit.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap narrow">
+      <h2>What testing found</h2>
+      <p>Writing tests for the existing code turned up real bugs:</p>
+      <ul>
+        <li><strong>An off-by-one day.</strong> Trial reminders could show one day too many during British Summer Time. A test now pins the exact case.</li>
+        <li><strong>A button that did nothing.</strong> The edit window was written in the wrong place, so editing a transaction never opened it.</li>
+        <li><strong>Broken values getting saved.</strong> Forms accepted non-numbers for income and bills, which then broke every total.</li>
+        <li><strong>Invisible progress bars.</strong> The budget bars used a colour that didn't exist in the stylesheet.</li>
+      </ul>
+      <p>None of these would have shown up from looking at the code. Each needed a test or a real check in the browser.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap narrow">
+      <h2>What's next</h2>
+      <p>Export to CSV, a monthly summary and optional reminders before bills are due.</p>
+      <div class="next">
+        <a class="btn" href="./#work">← Back to projects</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">© 2026 Abdulmalik Olusesi</div>
+</footer>
+</body>
+</html>
