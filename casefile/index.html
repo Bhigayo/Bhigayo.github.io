@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CASEFILE · Case 047</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+/* VOICE: a cinematic crime thriller in Lucien City, 2049; tense, clipped, noir in neon.
+   IDEA: an underground investigator's terminal: crime scene, city records, interrogations, evidence locker, accusation.
+   PICTURE: a neon line-drawn apartment at night with rain on the window and tappable clues; suspect silhouettes in interrogation.
+   COLOUR/TYPE: navy black, cyan, magenta, alarm red for the purge, green for breakthroughs; Orbitron + Share Tech Mono.
+   LAYOUT: HUD with purge meter, tab bar, one panel at a time; overlays for puzzles, evidence picker, reveal. */
+:root{color-scheme:dark;--bg:#03060d;--pn:#050b18;--cy:#19f0ff;--mg:#ff2bd6;--rd:#ff3b5c;--gr:#3dff9a;--am:#ffb020;--tx:#cfefff;--dim:#7fb6c9}
+:root[data-theme=light],:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 "Share Tech Mono",ui-monospace,monospace}
+body{min-height:100vh;overflow-x:clip}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:90;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,.55))}
+button{font:inherit;color:inherit}
+button:focus-visible{outline:2px solid var(--mg);outline-offset:2px}
+h1,h2,h3{font-family:"Orbitron",sans-serif;margin:0;letter-spacing:.05em}
+.k{color:var(--cy)}.m{color:var(--mg)}.r{color:var(--rd)}.g{color:var(--gr)}.a{color:var(--am)}.dim{color:var(--dim)}
+.btn{font:700 14px "Orbitron",sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#03060d;background:var(--cy);border:0;min-height:46px;padding:0 18px;cursor:pointer;box-shadow:0 0 14px #19f0ff66}
+.btn.mg{background:var(--mg);box-shadow:0 0 14px #ff2bd666}.btn.rd{background:var(--rd);box-shadow:0 0 14px #ff3b5c66}.btn.gr{background:var(--gr)}
+.btn.ghost{background:transparent;color:var(--cy);border:1px solid var(--cy);box-shadow:none}
+.btn.sm{min-height:40px;font-size:12px;padding:0 12px}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.wrap{max-width:1100px;margin:0 auto;padding:0 max(4vw,14px)}
+/* hud */
+.hud{position:sticky;top:0;z-index:20;background:#03060df0;border-bottom:1px solid #19f0ff33;backdrop-filter:blur(4px)}
+.hud .wrap{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;padding-block:10px}
+.hud b{font:900 15px "Orbitron",sans-serif;letter-spacing:.14em;color:var(--cy);text-shadow:0 0 10px var(--cy)}
+.purge{display:flex;align-items:center;gap:8px;flex:1 1 220px;max-width:380px}
+.purge .bar{flex:1;height:10px;border:1px solid var(--rd);padding:1px}.purge .bar i{display:block;height:100%;background:var(--rd);box-shadow:0 0 10px var(--rd);width:0;transition:width .3s}
+.purge span{font:700 13px "Orbitron",sans-serif;color:var(--rd);white-space:nowrap}
+.tabs{display:flex;overflow-x:auto;gap:2px;border-top:1px solid #19f0ff22}
+.tabs button{flex:1 0 auto;background:none;border:0;border-bottom:2px solid transparent;color:var(--dim);font:700 13px "Orbitron",sans-serif;letter-spacing:.12em;padding:12px 14px;min-height:46px;cursor:pointer}
+.tabs button[aria-current]{color:#fff;border-bottom-color:var(--cy);text-shadow:0 0 8px var(--cy)}
+.tabs button .n{color:var(--mg);margin-left:4px}
+main{padding:22px 0 60px}
+.ttl{font:900 clamp(30px,6vw,54px)/1 "Orbitron",sans-serif;color:#fff;text-shadow:0 0 14px var(--cy);margin-bottom:6px}
+.lead{color:var(--dim);margin:0 0 18px;max-width:70ch}
+/* intro */
+.intro{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 50% 35%,#0b1838,#03060d 70%)}
+.case{width:min(680px,100%);border:1px solid var(--cy);background:#050b18f0;box-shadow:0 0 36px #19f0ff44,inset 0 0 30px #19f0ff14;padding:clamp(18px,4vw,34px);display:grid;gap:14px}
+.case .big{font:900 clamp(36px,8vw,72px)/.95 "Orbitron",sans-serif;color:#fff;text-shadow:0 0 16px var(--cy)}
+.stamp{display:inline-block;border:2px solid var(--rd);color:var(--rd);font:900 14px "Orbitron",sans-serif;letter-spacing:.3em;padding:4px 10px;transform:rotate(-4deg);justify-self:start}
+.facts{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 16px;margin:0}
+.facts dt{color:var(--mg)}.facts dd{margin:0}
+.ring{width:80px;height:80px;border-radius:50%;border:3px solid #19f0ff33;border-top-color:var(--cy);border-right-color:var(--mg);animation:sp .8s linear infinite;justify-self:center}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* scene */
+.scene{position:relative;border:1px solid #19f0ff55;background:#040915;box-shadow:0 0 30px #19f0ff22}
+.scene svg{display:block;width:100%;height:auto}
+.hot{position:absolute;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;border:2px solid var(--cy);background:#19f0ff22;cursor:pointer;display:grid;place-items:center;font:900 16px "Orbitron",sans-serif;color:#fff;box-shadow:0 0 16px #19f0ff88;animation:pulse 1.8s ease-in-out infinite}
+.hot.seen{border-color:var(--gr);background:#3dff9a22;box-shadow:0 0 10px #3dff9a66;animation:none}
+.hot.lock{border-color:var(--am);background:#ffb02022;box-shadow:0 0 16px #ffb02088}
+@keyframes pulse{50%{box-shadow:0 0 28px #19f0ffcc;transform:translate(-50%,-50%) scale(1.08)}}
+.hotlist{display:none;gap:8px;margin-top:12px}
+.note{border-left:3px solid var(--cy);padding:10px 14px;background:#06102a;margin-top:14px}
+.note h3{font-size:16px;color:#fff;margin-bottom:4px}
+/* cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:14px}
+.card{border:1px solid #19f0ff44;background:var(--pn);padding:16px;display:grid;gap:8px;align-content:start}
+.card h3{font-size:17px;color:#fff;line-height:1.2}
+.card .src{font:700 11px "Orbitron",sans-serif;letter-spacing:.16em;color:var(--mg)}
+.card.new{border-color:var(--gr);box-shadow:0 0 14px #3dff9a44}
+.card.locked{opacity:.5}
+.card p{margin:0}
+/* suspects */
+.sus{cursor:pointer;text-align:left}
+.sus svg{width:100%;height:150px;display:block;background:radial-gradient(circle at 50% 70%,#0e2347,#050b18)}
+.interro{display:grid;grid-template-columns:260px minmax(0,1fr);gap:20px;align-items:start}
+.interro .portrait{border:1px solid #19f0ff55}
+.interro .portrait svg{width:100%;display:block;background:radial-gradient(circle at 50% 70%,#0e2347,#050b18)}
+.say{font-size:17px;border-left:3px solid var(--mg);padding:8px 14px;background:#0c0718;margin:0 0 14px}
+.stmt{border:1px solid #19f0ff33;background:var(--pn);padding:14px;display:grid;gap:10px;margin-bottom:12px}
+.stmt q{font-size:17px;color:#fff;quotes:"“" "”"}
+.stmt.broken{border-color:var(--gr)}
+.stmt .resp{color:var(--tx);border-left:2px solid var(--gr);padding-left:10px}
+.stmt .resp.press{border-left-color:var(--cy)}
+.tag{font:700 11px "Orbitron",sans-serif;letter-spacing:.14em}
+/* overlays */
+.ov{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:16px;background:#03060de8}
+.ov.on{display:flex}
+.box{width:min(640px,100%);max-height:calc(100vh - 32px);overflow:auto;border:1px solid var(--cy);background:#050b18;box-shadow:0 0 40px #19f0ff44;padding:clamp(16px,3vw,26px);display:grid;gap:12px}
+.pick{display:grid;gap:8px}
+.pick button{text-align:left;background:#06102a;border:1px solid #19f0ff44;padding:10px 12px;cursor:pointer;min-height:48px}
+.pick button:hover{border-color:var(--cy)}
+.pick b{color:#fff;display:block}
+.slots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.slot{min-height:84px;border:2px solid #19f0ff66;background:#06102a;font:900 clamp(20px,5vw,30px) "Orbitron",sans-serif;color:var(--cy);cursor:pointer}
+.slot.ok{border-color:var(--gr);color:var(--gr);box-shadow:0 0 16px #3dff9a66}
+.target{font:900 clamp(22px,5vw,32px) "Orbitron",sans-serif;letter-spacing:.2em;color:#fff;text-align:center}
+.flash{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;pointer-events:none;font:900 clamp(30px,8vw,76px) "Orbitron",sans-serif;letter-spacing:.06em;text-align:center}
+.flash.on{display:flex;animation:fl .9s steps(2) 1}
+@keyframes fl{0%{opacity:1;transform:scale(1.2)}100%{opacity:0;transform:scale(1)}}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:55;background:#03060d;border:1px solid var(--gr);color:var(--gr);padding:10px 16px;font:700 13px "Orbitron",sans-serif;letter-spacing:.1em;display:none;box-shadow:0 0 16px #3dff9a55;text-align:center;max-width:92vw}
+.toast.on{display:block}
+fieldset{border:1px solid #19f0ff44;padding:12px;margin:0;display:grid;gap:6px}
+legend{font:700 13px "Orbitron",sans-serif;letter-spacing:.12em;color:var(--mg);padding:0 6px}
+fieldset label{display:flex;gap:10px;align-items:center;min-height:40px;cursor:pointer}
+fieldset input{accent-color:var(--mg);width:20px;height:20px}
+.tl{list-style:none;margin:0;padding:0;display:grid;gap:8px;border-left:2px solid var(--cy);padding-left:14px}
+.tl b{color:var(--cy);margin-right:8px}
+.res{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.res div{border:1px solid #19f0ff44;padding:8px;font-size:14px}.res b{display:block;font:700 14px "Orbitron",sans-serif}
+@media(max-width:760px){.interro{grid-template-columns:minmax(0,1fr)}.interro .portrait{max-width:220px}.res{grid-template-columns:repeat(2,minmax(0,1fr))}.hot{width:44px;height:44px}}
+@media(prefers-reduced-motion:reduce){.hot,.ring,.flash.on{animation:none}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="ov" id="ov"></div>
+<div class="flash" id="flash"></div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+{
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+let ac=null;const beep=(f=880,d=.08,t='square',v=.035)=>{try{ac=ac||new AudioContext();const o=ac.createOscillator(),g=ac.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,ac.currentTime);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+d);o.connect(g).connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}};
+
+/* ================= THE CASE ================= */
+const EV={
+ body:{n:'Autopsy note',src:'Crime scene',t:'Cause of death: neural implant overload. Scorching around the implant behind the left ear. An overload needs a cable plugged into the implant\'s maintenance port, within two metres. Whoever did this was in the room.'},
+ dust:{n:'Clean rectangle on the floor',src:'Crime scene',t:'A dust-free rectangle, about 40 × 25 cm, beside the implant charging dock. Something heavy, like a tool case, was set down here tonight.'},
+ drawing:{n:'Child\'s drawing',src:'Crime scene',t:'Crayon on the fridge: "FOR DADDY ♥ LIA". Dated today, 22 Nov 2049.'},
+ lock:{n:'Smart lock log (recovered)',src:'Crime scene · decrypted',t:'22:44 · resident key · guest exit. 23:28 · door opened · MAINTENANCE OVERRIDE (code MAINT-7). 23:40 · door closed. The resident\'s own key was not used after 22:44.'},
+ transenc:{n:'Encrypted transmission',src:'Victim\'s terminal',t:'Sent 23:27 to a contact saved as "J.R.". Content encrypted. It needs a key to open.'},
+ trans:{n:'Final transmission (decrypted)',src:'Victim\'s terminal · decrypted',t:'"If anything happens to me, it\'s ATLAS. Dex knows I copied it. Someone just buzzed: maintenance, at this hour? Keep the files safe. — E."'},
+ lift:{n:'Lift log, Tower 9',src:'City records',t:'22:31 · lift to floor 9 · guest pass M. VOSS. 22:44 · floor 9 to lobby · M. VOSS. 23:26 · service lift to floor 9 · MAINTENANCE ACCESS. 23:41 · floor 9 to basement · MAINTENANCE ACCESS.'},
+ cams:{n:'Camera system report',src:'City records',t:'Corridor footage from 23:20 to 23:50 was deleted at 23:44 from the building admin console in the basement. The console needs a building-technician login.'},
+ insure:{n:'Life insurance policy',src:'City records',t:'Policyholder: Elias Voss. Beneficiary: Mara Voss. Payout: 300,000 credits. Set up eight years ago.'},
+ badge:{n:'Vaultline HQ badge log',src:'City records',t:'D. KALANI · badge in 22:58 · badge out 00:31. No exits in between. HQ is a 40-minute journey from District 09.'},
+ cafe:{n:'Café Neon receipt',src:'City records',t:'J. REYES · 23:30 · one coffee, one water · table for two. Café Neon is in District 04.'},
+ theobank:{n:'Theo Lark\'s bank record',src:'City records · unlocked',t:'Three days ago: balance −38,200 credits (overdue loan, flagged for collection). Tonight, 23:58: +40,000 credits from ORCHID HOLDINGS.'},
+ orchid:{n:'Juno\'s notes on Orchid Holdings',src:'Testimony · Juno Reyes',t:'Orchid Holdings is a shell company with no staff and no office. Today Vaultline paid it 40,000 credits, signed off on D. Kalani\'s expense account.'},
+ key:{n:'Decryption key fragment',src:'Testimony · Juno Reyes',t:'Elias gave Juno half a key weeks ago: LUMEN-0447. "If I go dark, use this."'},
+ marat:{n:'Mara\'s testimony',src:'Testimony · Mara Voss',t:'At 22:30 Elias was frightened. He kept checking the door and said "they know what I took".'},
+ theot:{n:'Theo\'s admission',src:'Testimony · Theo Lark',t:'Theo went up to Elias\'s flat at 23:26 for an "urgent implant check flagged by the system". Says Elias was fine when he left.'},
+ kit:{n:'Theo\'s service kit',src:'Testimony · Theo Lark',t:'Theo carries an NX-2 implant service kit. It includes a maintenance-port cable. Case size: 40 × 25 cm.'}};
+const RECORDS=['lift','cams','insure','badge','cafe','theobank'];
+const HOTS=[
+ {id:'body',x:47,y:79,label:'Body'},{id:'dock',x:66,y:73,label:'Charging dock'},{id:'door',x:9,y:52,label:'Front door'},
+ {id:'term',x:85,y:52,label:'Terminal'},{id:'fridge',x:28,y:42,label:'Fridge'},{id:'window',x:55,y:30,label:'Window'}];
+const SUS=[
+ {id:'mara',name:'Mara Voss',role:'Ex-wife · District 07',acc:'hair',
+  intro:'"I came as soon as they called. Lia doesn\'t know yet. Please, just ask what you need to."',
+  st:[{id:'m1',q:'I haven\'t seen Elias in months. We don\'t speak.',ok:['drawing','lift'],brk:'…Fine. I dropped off Lia\'s drawing at half ten. Ten minutes, that\'s all. He was alive. And he was frightened: he kept checking the door, said "they know what I took".',give:['marat'],press:'"We split three years ago. It\'s civil. Mostly."'},
+   {id:'m2',q:'I gain nothing from his death.',ok:['insure'],brk:'Yes, I\'m the beneficiary. We set it up when we were married. I left at 22:44. Check the lift if you don\'t believe me.',press:'"What would I gain? A daughter without a father?"'},
+   {id:'m3',q:'Elias had no enemies. He was an engineer.',press:'"He\'d been working late for weeks. Something at Vaultline called ATLAS. He wouldn\'t tell me what."'}]},
+ {id:'theo',name:'Theo Lark',role:'Building technician · Tower 9',acc:'cap',
+  intro:'"Terrible thing. Terrible. I fix boilers and door locks, detective. I don\'t know anything about anything."',
+  st:[{id:'t1',q:'I was in the basement workshop all night, fixing the boiler.',ok:['lift','lock'],brk:'Alright, alright. The system flagged his implant for an urgent check. I went up at 23:26, ran a diagnostic, and left. He was fine. I kept quiet because it looks bad.',give:['theot'],unlock:'theobank',press:'"Boiler\'s been playing up all month. Ask anyone."'},
+   {id:'t2',q:'Implant work? I don\'t even carry the kit for that.',ok:['body','dust'],brk:'…My NX-2 service kit has a port cable. Every tech\'s does. Doesn\'t prove a thing.',give:['kit'],press:'"I\'m a building tech, not a surgeon."'},
+   {id:'t3',q:'I never touch the camera system.',ok:['cams'],brk:'Cameras glitch all the time in this tower. Anyone could have… look, I don\'t know.',press:'"The cameras are the manager\'s problem."'},
+   {id:'t4',q:'Money\'s fine. I\'m not in any trouble.',ok:['theobank'],brk:'That\'s a side job. Consulting. Private. Nothing to do with this.',press:'"Why would money matter?"'}]},
+ {id:'dex',name:'Dex Kalani',role:'Head of Security · Vaultline Corp',acc:'suit',
+  intro:'"Vaultline is cooperating fully. Elias was a valued colleague. Let\'s keep this brief."',
+  st:[{id:'d1',q:'Nothing unusual was happening with Elias at work.',ok:['trans','marat'],brk:'Elias copied classified Project ATLAS files. I reported it internally. That is the full extent of my involvement.',press:'"Elias was a model employee."'},
+   {id:'d2',q:'I was at headquarters all night.',press:'"Check my badge. I never left the building." (He\'s right: the badge log backs him up.)'},
+   {id:'d3',q:'Vaultline has no dealings with anyone in Tower 9.',ok:['orchid','theobank'],brk:'Orchid Holdings is a security contractor. Routine payment. I\'m finished here. Speak to our lawyers.',press:'"Tower 9 is a residential building. Why would we?"'}]},
+ {id:'juno',name:'Juno Reyes',role:'Journalist · The Lucien Wire',acc:'beret',
+  intro:'"He was supposed to meet me tonight. He never came."',
+  st:[{id:'j1',q:'I was at Café Neon from half eleven, waiting for him.',press:'"Table for two. I ordered him a water. He never drank anything else." (The receipt backs her up.)'},
+   {id:'j2',q:'He never sent me anything.',ok:['transenc','trans'],brk:'…He did. At 23:27. I couldn\'t open it, but he gave me half a key weeks ago in case he "went dark": LUMEN-0447. And there\'s something else: I\'ve been tracking Vaultline payments. Orchid Holdings.',give:['key','orchid'],press:'"I\'m a reporter. People send me tips all day."'}]}];
+const ACC={
+ killer:[['theo','Theo Lark'],['mara','Mara Voss'],['dex','Dex Kalani'],['juno','Juno Reyes']],
+ method:[['overload','Implant overloaded through its maintenance port'],['remote','Implant hacked remotely from Vaultline HQ'],['poison','Poisoned drink'],['fall','A fall staged as an accident']],
+ motive:[['paid','Paid 40,000 credits to silence him'],['insurance','The life insurance payout'],['story','To get the ATLAS story first'],['grudge','A personal grudge']],
+ client:[['dex','Dex Kalani'],['nobody','Nobody, the killer acted alone'],['mara','Mara Voss'],['juno','Juno Reyes']]};
+const ANSWER={killer:'theo',method:'overload',motive:'paid',client:'dex'};
+const TIMELINE=[['22:31','Mara visits with Lia\'s drawing. Elias is scared: "they know what I took".'],['22:44','Mara leaves. Elias is alone.'],['Earlier that day','Dex pays 40,000 credits into Orchid Holdings from his expense account.'],
+ ['23:26','Theo takes the service lift to floor 9 with his NX-2 kit, claiming an "urgent implant check".'],['23:27','The door buzzes. Elias sends his last transmission to Juno.'],['23:28','Theo opens the door with maintenance override MAINT-7.'],
+ ['~23:33','Theo plugs into the implant\'s maintenance port and overloads it. His case leaves a clean rectangle in the dust.'],['23:40','Theo leaves. 23:41: service lift to the basement.'],['23:44','From the basement console, Theo deletes the corridor footage.'],
+ ['23:47','Elias\'s implant medical alarm triggers. He is found dead.'],['23:58','Orchid Holdings pays Theo 40,000 credits. His debt disappears.']];
+const COST={inspect:3,record:2,press:2,wrong:9,decryptFail:4};
+
+/* ================= STATE ================= */
+const KEY='casefile-047';let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+const fresh=()=>({started:false,got:{},newEv:{},seen:{},read:{},pressed:{},broke:{},unlocked:{},purge:0,lockState:0,done:null});
+S=S&&S.got?S:fresh();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+let tab='scene',curSus=null;
+function cost(n,why){if(S.done)return;S.purge=Math.min(100,S.purge+n);save();hud();if(S.purge>=100)buried()}
+function give(ids){const added=[];for(const id of [].concat(ids||[]))if(!S.got[id]){S.got[id]=1;S.newEv[id]=1;added.push(EV[id].n)}save();if(added.length){toast('NEW EVIDENCE: '+added.join(' · '));beep(1320,.15,'triangle',.05)}}
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2600)}
+async function flash(t,c){const f=$('flash');f.textContent=t;f.style.color='#fff';f.style.textShadow=`0 0 20px ${c},0 0 4px ${c}`;f.classList.remove('on');void f.offsetWidth;f.classList.add('on');await wait(900);f.classList.remove('on')}
+
+/* ================= SHELL ================= */
+const app=$('app');
+function hud(){const b=document.querySelector('.purge .bar i');if(!b)return;b.style.width=S.purge+'%';document.querySelector('.purge .pv').textContent=Math.round(S.purge)+'%';
+ document.querySelectorAll('[data-tab]').forEach(x=>{const n=x.querySelector('.n');if(n)n.textContent=x.dataset.tab==='evidence'?Object.keys(S.got).length:''})}
+function shell(){app.innerHTML=`<header class="hud"><div class="wrap"><b>CASEFILE · 047</b><div class="purge" title="Vaultline purge"><span>VAULTLINE PURGE</span><div class="bar"><i></i></div><span class="pv">0%</span></div></div>
+ <nav class="tabs wrap" aria-label="Investigation">${[['scene','Scene'],['records','Records'],['suspects','Suspects'],['evidence','Evidence'],['accuse','Accuse']].map(([k,l])=>`<button type="button" data-tab="${k}" ${k===tab?'aria-current="page"':''}>${l}${k==='evidence'?'<span class="n"></span>':''}</button>`).join('')}</nav></header>
+ <main class="wrap" id="main"></main>`;hud();render()}
+app.addEventListener('click',e=>{const t=e.target.closest('[data-tab]');if(t){tab=t.dataset.tab;curSus=null;document.querySelectorAll('[data-tab]').forEach(x=>x===t?x.setAttribute('aria-current','page'):x.removeAttribute('aria-current'));render();scrollTo(0,0)}});
+function render(){const m=$('main');if(!m)return;
+ if(S.purge>=100&&!S.done&&tab!=='accuse'){tab='accuse';document.querySelectorAll('[data-tab]').forEach(x=>x.dataset.tab==='accuse'?x.setAttribute('aria-current','page'):x.removeAttribute('aria-current'))}
+ if(tab==='scene')m.innerHTML=sceneHTML();
+ if(tab==='records')m.innerHTML=recordsHTML();
+ if(tab==='suspects')m.innerHTML=curSus?interroHTML(curSus):suspectsHTML();
+ if(tab==='evidence'){m.innerHTML=evidenceHTML();S.newEv={};save()}
+ if(tab==='accuse')m.innerHTML=accuseHTML();
+ hud()}
+
+/* ---------- intro ---------- */
+async function intro(){
+ if(S.done){shell();return}
+ app.innerHTML=`<div class="intro"><div class="case"><div class="ring"></div><p class="m" style="text-align:center;letter-spacing:.2em" id="im">CONNECTING TO CASEFILE NETWORK</p></div></div>`;
+ for(const t of ['CONNECTING TO CASEFILE NETWORK','ROUTING AROUND VAULTLINE','PULLING BURIED CASE 047','CASE FILE OPEN']){if(!$('im'))return;$('im').textContent=t;beep(600,.04,'square',.02);await wait(S.started?120:520)}
+ if(S.started){shell();return}
+ app.innerHTML=`<div class="intro"><div class="case"><span class="stamp">CLASSIFIED</span><p class="m" style="letter-spacing:.2em;margin:0">CASEFILE · CASE 047</p><div class="big">THE LAST TRANSMISSION</div>
+ <dl class="facts"><dt>Location</dt><dd>Tower 9, flat 9-14 · District 09, Lucien City</dd><dt>Victim</dt><dd>Elias Voss, 42 · senior systems engineer, Vaultline Corp</dd><dt>Found</dt><dd>23:47, after his implant's medical alarm triggered</dd><dt>Entry</dt><dd>No forced entry</dd><dt>Footage</dt><dd>Corridor cameras "unavailable"</dd></dl>
+ <p>Vaultline has already marked the case <b class="r">accidental</b>, and it's purging the records. CASEFILE pulled them before they vanished. You're the investigator.</p>
+ <p><b class="k">Your job:</b> find who killed Elias, how, why, and who paid for it. Search the scene, pull records, break suspects' lies by presenting the right evidence.</p>
+ <p><b class="r">Be careful:</b> every action raises the <b class="r">purge</b>. Wrong accusations in interrogation cost the most. At 100% the case is buried and you must accuse with whatever you have.</p>
+ <div class="row"><button class="btn" type="button" id="begin">Open the case</button></div></div></div>`;
+ $('begin').onclick=()=>{S.started=true;save();beep(880,.2,'sawtooth',.04);shell()};
+}
+
+/* ---------- scene ---------- */
+function sceneSVG(){const drops=Array.from({length:26},(_,i)=>`<line x1="${410+((i*37)%210)}" y1="${70+((i*53)%150)}" x2="${404+((i*37)%210)}" y2="${86+((i*53)%150)}" stroke="#19f0ff66" stroke-width="1.5"><animate attributeName="y1" values="${70+((i*53)%150)};250" dur="${.9+(i%5)*.2}s" repeatCount="indefinite"/><animate attributeName="y2" values="${86+((i*53)%150)};266" dur="${.9+(i%5)*.2}s" repeatCount="indefinite"/></line>`).join('');
+ return `<svg viewBox="0 0 1000 560" role="img" aria-label="Elias Voss's apartment at night: front door, fridge, rain-streaked window, desk terminal, implant charging dock and the outline where the body was found">
+ <defs><filter id="gl"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <linearGradient id="fl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#071230"/><stop offset="1" stop-color="#02050c"/></linearGradient></defs>
+ <rect width="1000" height="560" fill="#040915"/><rect y="380" width="1000" height="180" fill="url(#fl)"/>
+ <g stroke="#19f0ff22">${Array.from({length:11},(_,i)=>`<line x1="${i*100}" y1="380" x2="${500+(i*100-500)*1.8}" y2="560"/>`).join('')}<line x1="0" y1="430" x2="1000" y2="430"/><line x1="0" y1="490" x2="1000" y2="490"/></g>
+ <line x1="0" y1="380" x2="1000" y2="380" stroke="#19f0ff88" filter="url(#gl)"/>
+ <g filter="url(#gl)" fill="none" stroke-width="2.5">
+  <rect x="400" y="60" width="240" height="200" stroke="#ff2bd6"/><line x1="520" y1="60" x2="520" y2="260" stroke="#ff2bd6"/>
+  <rect x="40" y="150" width="110" height="230" stroke="#19f0ff"/><rect x="128" y="250" width="12" height="24" stroke="#ffb020"/>
+  <rect x="220" y="150" width="120" height="230" stroke="#19f0ff"/><line x1="220" y1="240" x2="340" y2="240" stroke="#19f0ff"/><rect x="250" y="175" width="44" height="40" stroke="#ff2bd6"/>
+  <rect x="740" y="300" width="230" height="16" stroke="#19f0ff"/><line x1="760" y1="316" x2="760" y2="380" stroke="#19f0ff"/><line x1="950" y1="316" x2="950" y2="380" stroke="#19f0ff"/>
+  <rect x="800" y="220" width="120" height="76" stroke="#3dff9a"/><line x1="860" y1="296" x2="860" y2="300" stroke="#3dff9a"/>
+  <rect x="640" y="330" width="34" height="80" stroke="#19f0ff"/><circle cx="657" cy="345" r="6" stroke="#3dff9a"/>
+  <rect x="600" y="412" width="54" height="30" stroke="#ffb020" stroke-dasharray="5 4"/>
+  <path d="M380 470c20-14 60-16 90-10l60 4c30 2 50 10 70 6M468 455c-10-14 4-30 22-26s22 22 10 32M520 470l40 34M450 476l-46 30" stroke="#cfefff" stroke-dasharray="7 6"/>
+ </g>
+ <g>${drops}</g>
+ <text x="818" y="262" fill="#3dff9a" font-size="13" font-family="Share Tech Mono">TX SENT 23:27</text>
+ <text x="404" y="285" fill="#ff2bd699" font-size="12" font-family="Share Tech Mono">DISTRICT 09 · RAIN</text>
+ </svg>`}
+const hotState=h=>{if(h.id==='door')return S.got.lock?'seen':S.seen.door?'lock':'';if(h.id==='term')return S.got.trans?'seen':(S.seen.term&&S.got.key)?'lock':S.seen.term?'seen':'';return S.seen[h.id]?'seen':''};
+function sceneHTML(){return `<h1 class="ttl">CRIME SCENE</h1><p class="lead">Flat 9-14. Tap a marker to inspect it (+${COST.inspect}% purge the first time). Amber markers have something locked you can try to recover.</p>
+ <div class="scene">${sceneSVG()}${HOTS.map(h=>`<button type="button" class="hot ${hotState(h)}" style="left:${h.x}%;top:${h.y}%" data-hot="${h.id}" aria-label="Inspect ${h.label}">${hotState(h)==='seen'?'✓':hotState(h)==='lock'?'!':'?'}</button>`).join('')}</div>
+ <div id="sceneNote">${lastNote||''}</div>`}
+let lastNote='';
+const NOTES={
+ body:()=>({h:'The body',t:'Elias lies on his back by the charging dock. No wounds, no struggle. There\'s scorching behind his left ear, around the neural implant.',ev:'body'}),
+ dock:()=>({h:'Implant charging dock',t:'His implant dock, lights still blinking. On the floor beside it, a clean rectangle in the dust: something was set down here.',ev:'dust'}),
+ fridge:()=>({h:'The fridge',t:'A child\'s drawing held up by a magnet. Fresh crayon.',ev:'drawing'}),
+ window:()=>({h:'The window',t:'Rain, and District 09\'s neon smeared across the glass. The window is locked from inside. Nothing came in this way.'}),
+ door:()=>S.got.lock?{h:'Front door',t:'The recovered lock log is in your evidence.'}:{h:'Front door',t:'No damage. The smart lock\'s log has been corrupted, but the data might be recoverable.',act:'Recover the lock log',fn:'lock'},
+ term:()=>S.got.trans?{h:'Elias\'s terminal',t:'The decrypted transmission is in your evidence.'}:S.got.key?{h:'Elias\'s terminal',t:'The encrypted transmission to "J.R." You have a key fragment now: LUMEN-0447.',act:'Decrypt the transmission',fn:'trans'}:{h:'Elias\'s terminal',t:'One message sent at 23:27 to "J.R.". It\'s encrypted. Without a key, it\'s noise. Who is J.R.?',ev:'transenc'}};
+app.addEventListener('click',e=>{const h=e.target.closest('[data-hot]');if(h){const id=h.dataset.hot;const n=NOTES[id]();if(!S.seen[id]){S.seen[id]=1;cost(COST.inspect)}if(n.ev)give(n.ev);beep(700,.04,'square',.02);
+  lastNote=`<div class="note"><h3>${esc(n.h)}</h3><p>${esc(n.t)}</p>${n.act?`<div class="row" style="margin-top:10px"><button class="btn mg" type="button" data-dec="${n.fn}">${esc(n.act)}</button></div>`:''}</div>`;render();if(S.purge>=100)return}
+ const d=e.target.closest('[data-dec]');if(d)decrypt(d.dataset.dec)});
+
+/* ---------- decrypt puzzle ---------- */
+function decrypt(which){const target=which==='lock'?['4D','41','49','37']:['4C','55','4D','30'],pool=['4D','41','49','37','4C','55','4E','30','3F','B2','E9','1C'];
+ const locked=[false,false,false,false],vals=[0,0,0,0];let tm=0,done=false;
+ const ov=openOv(`<div class="box"><p class="m" style="letter-spacing:.2em;margin:0">${which==='lock'?'SMART LOCK · DATA RECOVERY':'TRANSMISSION · DECRYPTION'}</p><h2 style="color:#fff">${which==='lock'?'Recover the log':'Decrypt with LUMEN-0447'}</h2>
+ <p>Tap each column when it shows the target byte. A wrong lock costs <b class="r">+${COST.decryptFail}% purge</b> and resets that column.</p>
+ <div class="target">${target.join(' ')}</div><div class="slots">${target.map((_,i)=>`<button type="button" class="slot" data-s="${i}">--</button>`).join('')}</div>
+ <p id="dmsg" class="dim" style="margin:0;min-height:1.5em"></p><div class="row"><button class="btn ghost" type="button" data-close>Abort</button></div></div>`);
+ const slots=[...ov.querySelectorAll('.slot')];
+ const spin=()=>{slots.forEach((s,i)=>{if(locked[i])return;vals[i]=(vals[i]+1+Math.floor(Math.random()*2))%pool.length;s.textContent=pool[vals[i]]});tm=setTimeout(spin,which==='lock'?520:440)};spin();
+ ov.querySelector('.slots').addEventListener('click',async e=>{const s=e.target.closest('.slot');if(!s||done)return;const i=+s.dataset.s;if(locked[i])return;
+  if(pool[vals[i]]===target[i]){locked[i]=true;s.classList.add('ok');beep(1100+i*120,.06,'square',.03);
+   if(locked.every(Boolean)){done=true;clearTimeout(tm);$('dmsg').innerHTML='<b class="g">DATA RECOVERED</b>';await wait(600);closeOv();
+    if(which==='lock'){give('lock');lastNote=`<div class="note"><h3>Front door</h3><p>${esc(EV.lock.t)}</p></div>`}else{give('trans');lastNote=`<div class="note"><h3>Final transmission</h3><p>${esc(EV.trans.t)}</p></div>`}
+    flash('DECRYPTED','#3dff9a');render()}}
+  else{beep(160,.25,'sawtooth',.04);$('dmsg').innerHTML=`<b class="r">CORRUPT READ · PURGE +${COST.decryptFail}%</b>`;cost(COST.decryptFail);if(S.purge>=100){clearTimeout(tm);return}}});
+ ov._stop=()=>clearTimeout(tm);
+}
+
+/* ---------- records ---------- */
+function recordsHTML(){return `<h1 class="ttl">CITY RECORDS</h1><p class="lead">Pulled from Vaultline's systems before the purge. Opening a record for the first time costs +${COST.record}% purge. Some records unlock as the case develops.</p>
+ <div class="grid">${RECORDS.map(id=>{const un=id!=='theobank'||S.unlocked.theobank,rd=S.read[id];return `<div class="card ${un?'':'locked'}"><span class="src">${un?EV[id].src.toUpperCase():'LOCKED'}</span><h3>${un?esc(EV[id].n):'Restricted financial record'}</h3>
+  ${!un?'<p class="dim">Needs a reason to pull it. Someone\'s story has to crack first.</p>':rd?`<p>${esc(EV[id].t)}</p>`:`<div><button class="btn sm" type="button" data-rec="${id}">Open record</button></div>`}</div>`}).join('')}</div>`}
+app.addEventListener('click',e=>{const r=e.target.closest('[data-rec]');if(!r)return;const id=r.dataset.rec;if(!S.read[id]){S.read[id]=1;cost(COST.record)}give(id);render()});
+
+/* ---------- suspects ---------- */
+const ACCS={hair:'<path d="M66 70c-4-36 72-36 68 0c-4-14-20-22-34-22s-30 8-34 22z" fill="#ff2bd6" opacity=".8"/><path d="M64 72c-8 30-4 52 6 60M136 72c8 30 4 52-6 60" stroke="#ff2bd6" stroke-width="5" fill="none" opacity=".8"/>',
+ cap:'<path d="M62 64c6-24 70-24 76 0z" fill="#ffb020" opacity=".85"/><rect x="58" y="62" width="62" height="7" fill="#ffb020" opacity=".85"/>',
+ suit:'<path d="M70 150l30 26 30-26" stroke="#19f0ff" stroke-width="4" fill="none"/><path d="M100 176v40" stroke="#ff3b5c" stroke-width="7"/>',
+ beret:'<path d="M60 60c8-22 76-22 82-2c-18 6-64 8-82 2z" fill="#3dff9a" opacity=".8"/>'};
+const portrait=s=>`<svg viewBox="0 0 200 220" aria-hidden="true"><circle cx="100" cy="84" r="34" fill="#0b1a36" stroke="#19f0ff" stroke-width="2"/><path d="M34 220c6-56 126-56 132 0z" fill="#0b1a36" stroke="#19f0ff" stroke-width="2"/>${ACCS[s.acc]}</svg>`;
+const brokeCount=s=>s.st.filter(x=>S.broke[x.id]).length,canBreak=s=>s.st.filter(x=>x.ok).length;
+function suspectsHTML(){return `<h1 class="ttl">SUSPECTS</h1><p class="lead">Interrogate them. When a statement doesn't fit the facts, present evidence against it. Wrong evidence costs <b class="r">+${COST.wrong}% purge</b>.</p>
+ <div class="grid">${SUS.map(s=>`<button type="button" class="card sus" data-sus="${s.id}">${portrait(s)}<span class="src">${esc(s.role.toUpperCase())}</span><h3>${esc(s.name)}</h3><span class="dim">${brokeCount(s)}/${canBreak(s)} lies broken</span></button>`).join('')}</div>`}
+function interroHTML(id){const s=SUS.find(x=>x.id===id);return `<button class="btn ghost sm" type="button" data-back>← All suspects</button>
+ <div class="interro" style="margin-top:14px"><div class="portrait">${portrait(s)}</div><div><span class="src m tag">${esc(s.role.toUpperCase())}</span><h1 class="ttl" style="font-size:clamp(26px,5vw,40px)">${esc(s.name)}</h1><p class="say">${esc(s.intro)}</p>
+ ${s.st.map(st=>{const b=S.broke[st.id],p=S.pressed[st.id];return `<div class="stmt ${b?'broken':''}"><span class="tag ${b?'g':'k'}">${b?'CONTRADICTION FOUND':'STATEMENT'}</span><q>${esc(st.q)}</q>
+  ${p?`<p class="resp press">${esc(st.press)}</p>`:''}${b?`<p class="resp">"${esc(st.brk)}"</p>`:''}
+  ${b?'':`<div class="row">${p?'':`<button class="btn ghost sm" type="button" data-press="${st.id}">Press</button>`}<button class="btn mg sm" type="button" data-present="${st.id}">Present evidence</button></div>`}</div>`}).join('')}</div></div>`}
+app.addEventListener('click',e=>{const s=e.target.closest('[data-sus]');if(s){curSus=s.dataset.sus;render();scrollTo(0,0);return}
+ if(e.target.closest('[data-back]')){curSus=null;render();return}
+ const p=e.target.closest('[data-press]');if(p){S.pressed[p.dataset.press]=1;cost(COST.press);beep(600,.04,'square',.02);if(S.purge<100)render();return}
+ const pr=e.target.closest('[data-present]');if(pr)presentPicker(pr.dataset.present)});
+function findSt(id){for(const s of SUS)for(const st of s.st)if(st.id===id)return st}
+function presentPicker(stId){const st=findSt(stId),ids=Object.keys(S.got);
+ openOv(`<div class="box"><p class="m tag" style="margin:0">PRESENT EVIDENCE AGAINST</p><p style="color:#fff;font-size:17px;margin:0">"${esc(st.q)}"</p>
+ ${ids.length?`<div class="pick">${ids.map(id=>`<button type="button" data-ev="${id}"><b>${esc(EV[id].n)}</b><span class="dim">${esc(EV[id].t)}</span></button>`).join('')}</div>`:'<p class="dim">You have no evidence yet. Search the scene and records first.</p>'}
+ <div class="row"><button class="btn ghost" type="button" data-close>Cancel</button></div></div>`);
+ $('ov').querySelector('.pick')?.addEventListener('click',async e=>{const b=e.target.closest('[data-ev]');if(!b)return;const ev=b.dataset.ev;closeOv();
+  if(st.ok&&st.ok.includes(ev)){S.broke[stId]=1;save();beep(1400,.3,'sawtooth',.05);await flash('CONTRADICTION!','#3dff9a');give(st.give);if(st.unlock){S.unlocked[st.unlock]=1;save();toast('RECORD UNLOCKED: '+EV[st.unlock].n)}render()}
+  else{beep(140,.4,'sawtooth',.05);await flash('NO CONTRADICTION','#ff3b5c');toast(`That doesn't contradict it · purge +${COST.wrong}%`);cost(COST.wrong);if(S.purge<100)render()}})}
+
+/* ---------- evidence ---------- */
+function evidenceHTML(){const ids=Object.keys(S.got);return `<h1 class="ttl">EVIDENCE LOCKER</h1><p class="lead">${ids.length} item${ids.length===1?'':'s'} collected. Everything here can be presented in interrogation.</p>
+ ${ids.length?`<div class="grid">${ids.map(id=>`<div class="card ${S.newEv[id]?'new':''}"><span class="src">${esc(EV[id].src.toUpperCase())}${S.newEv[id]?' · NEW':''}</span><h3>${esc(EV[id].n)}</h3><p>${esc(EV[id].t)}</p></div>`).join('')}</div>`:'<p class="dim">Empty. Start at the crime scene.</p>'}`}
+
+/* ---------- accuse ---------- */
+function accuseHTML(){if(S.done)return resultHTML();
+ return `<h1 class="ttl">MAKE YOUR ACCUSATION</h1><p class="lead">This is final. Name the killer, the method, the motive and who paid for it. Your rank depends on how much you get right and how much of the case Vaultline purged.</p>
+ <form id="accForm" style="display:grid;gap:14px;max-width:720px">${[['killer','Who killed Elias Voss?'],['method','How?'],['motive','Why?'],['client','Who paid for it?']].map(([k,l])=>`<fieldset><legend>${l}</legend>${ACC[k].map(([v,t])=>`<label><input type="radio" name="${k}" value="${v}" required> ${esc(t)}</label>`).join('')}</fieldset>`).join('')}
+ <div class="row"><button class="btn rd" type="submit">Submit accusation</button></div></form>`}
+app.addEventListener('submit',e=>{if(e.target.id!=='accForm')return;e.preventDefault();const f=new FormData(e.target),a={};for(const k in ACC)a[k]=f.get(k);accuse(a)});
+function accuse(a){const score=Object.keys(ANSWER).filter(k=>a[k]===ANSWER[k]).length,solved=a.killer===ANSWER.killer;
+ const rank=!solved?'CASE COLD':score===4&&S.purge<60?'S · GHOST DETECTIVE':score===4?'A · LEAD INVESTIGATOR':score>=3?'B · FIELD AGENT':'C · ROOKIE';
+ S.done={a,score,solved,rank,purge:Math.round(S.purge)};save();tab='accuse';closeOv();shell();beep(solved?1320:120,.8,solved?'triangle':'sawtooth',.06)}
+function resultHTML(){const d=S.done,lbl=(k,v)=>ACC[k].find(x=>x[0]===v)?.[1]||'—';
+ return `<div style="display:grid;gap:16px;max-width:820px"><span class="stamp" style="border-color:${d.solved?'var(--gr)':'var(--rd)'};color:${d.solved?'var(--gr)':'var(--rd)'}">${d.solved?'CASE SOLVED':'CASE UNSOLVED'}</span>
+ <h1 class="ttl">${d.solved?'THE TRUTH IS OUT':'THE KILLER WALKS'}</h1><p class="lead" style="margin:0">Rank: <b class="${d.solved?'g':'r'}">${d.rank}</b> · ${d.score}/4 correct · purge ${d.purge}%</p>
+ <div class="res">${Object.keys(ANSWER).map(k=>`<div><b class="${d.a[k]===ANSWER[k]?'g':'r'}">${d.a[k]===ANSWER[k]?'✓':'✗'} ${k==='client'?'Paid by':k[0].toUpperCase()+k.slice(1)}</b>${esc(lbl(k,d.a[k]))}${d.a[k]===ANSWER[k]?'':`<br><span class="dim">Truth: ${esc(lbl(k,ANSWER[k]))}</span>`}</div>`).join('')}</div>
+ <h2 style="color:#fff;font-size:22px;margin-top:6px">What really happened</h2>
+ <p>Elias Voss copied Vaultline's Project ATLAS files: proof the company buries criminal cases. Dex Kalani found out. He paid 40,000 credits through a shell company, Orchid Holdings, to Theo Lark, the building technician drowning in debt. Theo used a fake "urgent implant check", his maintenance override and his NX-2 port cable to overload Elias's implant, then wiped the corridor footage from the basement. Elias got one message out first.</p>
+ <ul class="tl">${TIMELINE.map(([t,x])=>`<li><b>${t}</b>${esc(x)}</li>`).join('')}</ul>
+ <div class="row"><button class="btn" type="button" id="replay">Replay case 047</button></div></div>`}
+app.addEventListener('click',e=>{if(e.target.id==='replay'){S=fresh();save();lastNote='';tab='scene';curSus=null;intro()}});
+function buried(){if(S.done)return;closeOv();openOv(`<div class="box" style="border-color:var(--rd);box-shadow:0 0 40px #ff3b5c66"><span class="stamp">PURGED</span><h2 style="color:#fff;font-size:clamp(26px,6vw,40px)">CASE BURIED</h2>
+ <p>Vaultline has wiped the case from the city's systems. Investigation over. You have to make your accusation now with the evidence you've got.</p><div class="row"><button class="btn rd" type="button" id="toAcc">Make accusation</button></div></div>`);
+ $('toAcc').onclick=()=>{closeOv();tab='accuse';curSus=null;shell()}}
+
+/* ---------- overlay ---------- */
+function openOv(html){const o=$('ov');if(o._stop)o._stop();o._stop=null;o.innerHTML=html;o.classList.add('on');return o}
+function closeOv(){const o=$('ov');if(o._stop)o._stop();o._stop=null;o.classList.remove('on');o.innerHTML=''}
+$('ov').addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeOv()});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&$('ov').classList.contains('on')&&$('ov').querySelector('[data-close]'))closeOv()});
+intro();
+}
+</script>
+</body>
+</html>

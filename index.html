@@ -135,7 +135,7 @@ body.nofx #fx{display:none}
 <div id="crt">
   <div class="scr on" id="off" role="button" tabindex="0" aria-label="Power on"><div class="big glow">ABDULMALIK OS</div><div class="blink glow">PRESS ANY KEY OR TAP TO POWER ON</div></div>
   <div class="scr glow" id="bios"></div>
-  <div class="scr" id="splash"><div class="logo glow">ABDULMALIK<small>OS · VERSION 1.0</small></div><div class="lbar" id="lbar"></div><div class="lmsg glow" id="lmsg">Starting up…</div></div>
+  <div class="scr" id="splash"><div class="logo glow">ABDULMALIK<small>OS · VERSION 2.0</small></div><div class="lbar" id="lbar"></div><div class="lmsg glow" id="lmsg">Starting up…</div></div>
   <div class="scr" id="desk">
     <div class="menubar"><button type="button" id="mlogo" aria-expanded="false" aria-haspopup="true">◆ Abdulmalik OS</button><button type="button" data-open="projects">Projects</button><button type="button" data-open="terminal">Terminal</button><span class="clock" id="clk">00:00</span></div>
     <div class="drop" id="drop" role="menu">
@@ -160,10 +160,12 @@ body.nofx #fx{display:none}
 /* ===== EDIT YOUR CONTENT HERE ===== */
 const ME={name:'Abdulmalik Olusesi',role:'Software Engineering student · founder of Metic Apparel',email:'abdulmalikayomide40@gmail.com',github:'Bhigayo',linkedin:'Abdulmalik Olusesi'};
 const PROJ=[
- {id:'family',name:'The Family',ic:'doc',status:'live',tech:'JavaScript · parsing · canvas UI',blurb:'Turns a WhatsApp group chat export into crime-family case files: the Don, the Ghost, the Night Shift. Prints a tabloid front page to share. Runs entirely in the browser; the chat never leaves your phone.',link:'https://claude.ai/artifact/DZsgBmTsTK1kofBFgpGVUh'},
- {id:'velvet',name:'Velvet Room',ic:'glass',status:'live',tech:'JavaScript · game design · writing',blurb:'A 1968 murder-mystery party kit. The host desk sends secret invites; each guest gets a case file whose clues unlock round by round with code words.',link:'https://claude.ai/artifact/8FRABUr9YdGEyrXxSCr2dV'},
- {id:'afterlife',name:'Afterlife',ic:'city',status:'live',tech:'Simulation · utility AI · canvas',blurb:'A living city of 20 residents with needs, jobs, money, memories and relationships, none of it scripted. Includes a God mode and a newspaper that prints every midnight.',link:'https://claude.ai/artifact/EgMwQwxXjMThFSXgiQPcBp'},
+ {id:'family',name:'The Family',ic:'doc',status:'live',tech:'JavaScript · parsing · canvas UI',blurb:'Turns a WhatsApp group chat export into crime-family case files: the Don, the Ghost, the Night Shift. Prints a tabloid front page to share. Runs entirely in the browser; the chat never leaves your phone.',link:'/family/'},
+ {id:'velvet',name:'Velvet Room',ic:'glass',status:'live',tech:'JavaScript · game design · writing',blurb:'A 1968 murder-mystery party kit. The host desk sends secret invites; each guest gets a case file whose clues unlock round by round with code words. Want a look behind the scenes? Host code: BOURBON.',link:'/velvet/'},
+ {id:'afterlife',name:'Afterlife',ic:'city',status:'live',tech:'Simulation · utility AI · canvas',blurb:'A living city of 20 residents with needs, jobs, money, memories and relationships, none of it scripted. Includes a God mode and a newspaper that prints every midnight.',link:'/afterlife/'},
  {id:'citylink',name:'CITYLINK',ic:'city',status:'live',tech:'Canvas · traffic simulation · game design',blurb:'Jack into a neon city from a 1995 computer. Mission one, CODE RED: hack traffic lights in real time to get an ambulance to hospital before the patient flatlines. Fictional city, no real systems.',open:'citylink'},
+ {id:'casefile',name:'CASEFILE',ic:'mag',status:'live',tech:'Narrative design · game systems · JavaScript',blurb:'Case 047: The Last Transmission. A solo detective thriller in Lucien City, 2049. Search the crime scene, pull city records, break suspects\' lies by presenting evidence, decrypt the victim\'s last message, and accuse the killer before Vaultline purges the case.',link:'/casefile/'},
+ {id:'archive',name:'The Archive',ic:'vault',status:'soon',tech:'3D CSS · storage · uploads',blurb:'A museum of my life as a heist: six wings behind firewalls, a trace meter, security sweeps and redacted files you decrypt. Exhibits are being filed now.'},
  {id:'ebt',name:'Eatsbythia',ic:'bag',status:'soon',tech:'Web app · ordering · dashboard',blurb:'A digital ordering system and kitchen dashboard for a home-based Nigerian food business.'},
  {id:'ajo',name:'Ajo',ic:'coin',status:'soon',tech:'Web app',blurb:'A tracker for ajo / esusu savings groups: who has paid, whose turn it is.'},
  {id:'saldo',name:'Saldo',ic:'coin',status:'soon',tech:'Web app · finance',blurb:'Answers one question: how much can I safely spend until payday?'},
@@ -196,11 +198,13 @@ coin:['....####....','..########..','.###....###.','.##..##..##.','##..####..##'
 shirt:['..###..###..','.####..####.','############','############','.###....###.','..#......#..','..#......#..','..#......#..','..#......#..','..#......#..','..########..','............'],
 cam:['............','...####.....','############','#..........#','#...####...#','#..##..##..#','#..#....#..#','#..##..##..#','#...####...#','#..........#','############','............'],
 joy:['.....##.....','.....##.....','......#.....','......#.....','..########..','.##########.','##.#....##.#','#...#..#..##','##.#....##.#','############','.##......##.','............'],
+mag:['....####....','..##....##..','.#........#.','.#........#.','#..........#','#..........#','.#........#.','.#........#.','..##....###.','....####.###','..........##','...........#'],
+vault:['############','#..........#','#.########.#','#.#......#.#','#.#..##..#.#','#.#.####.#.#','#.#.####.#.#','#.#..##..#.#','#.#......#.#','#.########.#','#..........#','############'],
 chip:['.#.#.#.#.#..','############','#..........#','##.######.##','#..#....#..#','##.#....#.##','#..#....#..#','##.######.##','#..........#','############','.#.#.#.#.#..','............']};
-const COLS={folder:'#ffd76a',doc:'#ffffff',term:'#2b2b2b',card:'#9fe3ff',bomb:'#ff5f3a',trash:'#d9d9d9',gear:'#c9b2ff',city:'#5cff8a',glass:'#ff8fb1',bag:'#ffb347',coin:'#ffd76a',shirt:'#8fd3ff',cam:'#e6e6e6',joy:'#b2ff8f',chip:'#7ee0c3'};
+const COLS={folder:'#ffd76a',doc:'#ffffff',term:'#2b2b2b',card:'#9fe3ff',bomb:'#ff5f3a',trash:'#d9d9d9',gear:'#c9b2ff',city:'#5cff8a',glass:'#ff8fb1',bag:'#ffb347',coin:'#ffd76a',shirt:'#8fd3ff',cam:'#e6e6e6',joy:'#b2ff8f',chip:'#7ee0c3',mag:'#19f0ff',vault:'#ff2bd6'};
 function icon(k){const g=PIX[k],c=COLS[k];let r='';g.forEach((row,y)=>[...row].forEach((ch,x)=>{if(ch==='#')r+=`<rect x="${x}" y="${y}" width="1" height="1"/>`}));
  return `<svg viewBox="-1 -1 14 14" aria-hidden="true"><rect x="0" y="0" width="12" height="12" fill="none"/><g fill="${c}" stroke="#111" stroke-width=".15">${r}</g></svg>`}
-const DESK=[['about','About me.txt','doc'],['projects','Projects','folder'],['terminal','Terminal','term'],['contact','Contact.card','card'],['citylink','CITYLINK.exe','city'],['settings','Control panel','gear'],['dno','DO_NOT_OPEN.exe','bomb'],['trash','Trash','trash']];
+const DESK=[['about','About me.txt','doc'],['projects','Projects','folder'],['terminal','Terminal','term'],['contact','Contact.card','card'],['citylink','CITYLINK.exe','city'],['casefile','CASEFILE.exe','mag'],['settings','Control panel','gear'],['dno','DO_NOT_OPEN.exe','bomb'],['trash','Trash','trash']];
 $('icons').innerHTML=DESK.map(([id,l,k])=>`<button class="ico" type="button" data-open="${id}">${icon(k)}<span>${esc(l)}</span></button>`).join('');
 /* windows */
 let z=20,cascade=0;const wins={};
@@ -228,11 +232,12 @@ const APPS={
  projects:()=>launch('projects','Projects',`<div class="folder">${PROJ.map(p=>`<button class="ico" type="button" data-proj="${p.id}">${icon(p.ic)}<span>${esc(p.name)}</span></button>`).join('')}</div>`,560,null,true),
  contact:()=>launch('contact','Contact.card',`<div class="card"><h2>${esc(ME.name)}</h2><p>${esc(ME.role)}</p><p>Email: <a href="mailto:${ME.email}">${ME.email}</a></p><p>GitHub: <a href="https://github.com/${ME.github}" target="_blank" rel="noopener">github.com/${ME.github}</a></p><p>LinkedIn: ${esc(ME.linkedin)}</p></div>`,440),
  citylink:()=>cityOpen(),
+ casefile:()=>{const P=PROJ.find(p=>p.id==='casefile');launch('p-casefile',P.name,projHTML(P),460)},
  trash:()=>launch('trash','Trash',`<p><b>old_ideas.txt</b></p><p class="term" style="min-height:0;color:var(--ph)">- another dashboard (vetoed)<br>- to-do app #47 (vetoed)<br>- sleep (postponed)</p>`,380),
- aboutos:()=>launch('aboutos','About this computer',`<h2>Abdulmalik OS 1.0</h2><p>Built from scratch in HTML, CSS and JavaScript. No frameworks. One file.</p><p>Memory: 640K, which ought to be enough for anybody.<br>Processor: caffeine and ambition.</p>`,420),
+ aboutos:()=>launch('aboutos','About this computer',`<h2>Abdulmalik OS 2.0</h2><p>Built from scratch in HTML, CSS and JavaScript. No frameworks. One file.</p><p>Memory: 640K, which ought to be enough for anybody.<br>Processor: caffeine and ambition.</p>`,420),
  settings:()=>launch('settings','Control panel',settingsHTML(),440),
  terminal:()=>{const w=launch('terminal','Terminal',`<div class="term glow" id="term"><div id="tout"></div><form id="tform"><span>C:\\&gt;</span><input id="tin" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Command"></form></div>`,600,420);
-  Promise.resolve(w).then(()=>{const t=$('term');if(!t||t.dataset.ok)return;t.dataset.ok=1;say('ABDULMALIK OS TERMINAL v1.0\nType "help" for commands.\n');$('tform').onsubmit=e=>{e.preventDefault();run($('tin').value);$('tin').value=''};t.onclick=()=>$('tin').focus();$('tin').focus()})},
+  Promise.resolve(w).then(()=>{const t=$('term');if(!t||t.dataset.ok)return;t.dataset.ok=1;say('ABDULMALIK OS TERMINAL v2.0\nType "help" for commands.\n');$('tform').onsubmit=e=>{e.preventDefault();run($('tin').value);$('tin').value=''};t.onclick=()=>$('tin').focus();$('tin').focus()})},
  dno:()=>{if(!confirmBsod())return},
 };
 function confirmBsod(){
@@ -381,9 +386,9 @@ async function boot(){
  const crt=$('crt');crt.classList.remove('poff');show('bios');crt.classList.add('pon');setTimeout(()=>crt.classList.remove('pon'),700);
  beep(60,.4,'sine',.08);const b=$('bios');b.innerHTML='';const pre=document.createElement('div');b.appendChild(pre);
  const hint=document.createElement('div');hint.className='hint';hint.textContent='Tap or press Esc to skip';b.appendChild(hint);
- await type(pre,[['OLUSESI BIOS v1.0  (C) 2026 Abdulmalik Systems\n',250],['CPU: Ambition-486 @ 66 MHz\n',200]]);
+ await type(pre,[['OLUSESI BIOS v2.0  (C) 2026 Abdulmalik Systems\n',250],['CPU: Ambition-486 @ 66 MHz\n',200]]);
  for(let m=0;m<=640&&!skip;m+=64){pre.textContent=pre.textContent.replace(/Memory test: .*\n?$/,'')+`Memory test: ${m}K${m===640?' OK\n':''}`;beep(2200,.008,'square',.01);await wait(40)}
- await type(pre,[['Detecting drives…\n',350],['  Drive A: PROJECTS (13 found)\n',180],['  Drive B: IDEAS (too many)\n',180],['  Drive C: SLEEP (not found)\n',300],['\nBooting ABDULMALIK OS',300],['.',250],['.',250],['.\n',300]]);
+ await type(pre,[['Detecting drives…\n',350],[`  Drive A: PROJECTS (${PROJ.length} found)\n`,180],['  Drive B: IDEAS (too many)\n',180],['  Drive C: SLEEP (not found)\n',300],['\nBooting ABDULMALIK OS',300],['.',250],['.',250],['.\n',300]]);
  show('splash');const lb=$('lbar');lb.innerHTML='<i></i>'.repeat(14);const bars=[...lb.children],msgs=['Starting up…','Loading projects…','Warming up the CRT…','Compiling personality…','Almost there…'];
  for(let i=0;i<bars.length;i++){bars[i].style.opacity=1;$('lmsg').textContent=msgs[Math.floor(i/3)];await wait(skip?15:110+Math.random()*120)}
  await wait(skip?50:300);show('desk');chime();tick();booting=false;

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Murder at the Velvet Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Barlow+Condensed:wght@400;500;600;700&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+/* VOICE: a 1968 murder-mystery party, theatrical but easy to run on a phone.
+   IDEA: the same crime-family pause menu as The Family: case files, chapter strips, Polaroids, code words.
+   PICTURE: a painted poster of the club office (bourbon bottle, lipstick glass); each guest gets a Polaroid dossier.
+   COLOUR/TYPE: slate, bone, pastel chapter colours, one deep-red accent for the murder; Alfa Slab, Barlow Condensed, typewriter clues.
+   LAYOUT: pipe nav, giant slab title, content, key-hint bar. */
+:root{color-scheme:dark;--bg:#4d535c;--deep:#3a3f46;--bone:#dcd6c8;--mute:#a7a59c;--ok:#86b56f;--no:#c4524a;--blood:#9e2f2a;
+--c1:#e3b08f;--c2:#a58bb3;--c3:#93b38c;--c4:#8299b4;--c5:#d4c27c;--c6:#8cb8ae;--c7:#cf8f8a;--c8:#c8ad86}
+:root[data-theme=light],:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--bone);font:17px/1.5 "Barlow Condensed",Arial Narrow,sans-serif;overflow-x:clip;min-height:100vh}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.18;mix-blend-mode:overlay;
+background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.wrap{max-width:1100px;margin:0 auto;padding:clamp(20px,4vw,52px) max(5vw,16px) 110px}
+nav{display:flex;flex-wrap:wrap;align-items:center;font-size:clamp(16px,2.2vw,21px);letter-spacing:.06em;text-transform:uppercase}
+nav button{background:none;border:0;color:var(--mute);font:inherit;letter-spacing:inherit;text-transform:inherit;padding:10px 0;min-height:44px;cursor:pointer}
+nav button[aria-current]{color:var(--bone);font-weight:700}
+nav i{color:var(--mute);font-style:normal;padding:0 12px;opacity:.6}
+h1{font:400 clamp(46px,10vw,112px)/.9 "Alfa Slab One",Rockwell,serif;margin:14px 0 4px;text-transform:uppercase;text-wrap:balance}
+h2{font:400 clamp(26px,4vw,36px)/1.05 "Alfa Slab One",serif;margin:0 0 10px;text-transform:uppercase}
+.sub{font-weight:600;font-size:clamp(17px,2vw,21px);letter-spacing:.05em;text-transform:uppercase;margin:0 0 26px}
+.tw{font-family:"Special Elite",monospace;font-size:16px;line-height:1.5}
+.mute{color:var(--mute)}
+.btn{font:600 19px "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;min-height:48px;padding:0 20px;border:0;cursor:pointer;background:var(--bone);color:#2b2f34;display:inline-flex;align-items:center;gap:8px}
+.btn.ghost{background:transparent;color:var(--bone);outline:1px solid #7a8089}
+.btn.red{background:var(--blood);color:#f3e9dc}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--c5);outline-offset:2px}
+input,textarea,select{font:18px "Barlow Condensed",sans-serif;background:#f3ecdc;color:#2b2f34;border:0;padding:10px 12px;min-height:48px;width:100%}
+textarea{font:16px/1.5 "Special Elite",monospace;min-height:180px;resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.view{animation:in .4s ease}@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.view{animation:none}}
+/* poster */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(20px,4vw,50px);align-items:center}
+.art{width:100%;height:auto;display:block}
+.panel{background:var(--deep);padding:22px;display:grid;gap:14px}
+/* paper card */
+.paper{background:#e9e1cf;color:#2d2a25;display:grid;grid-template-columns:58px minmax(0,1fr);box-shadow:0 10px 24px #0004}
+.strip{background:var(--c);display:flex;flex-direction:column;align-items:center;padding-top:14px;gap:10px;color:#2d2a25}
+.strip span{writing-mode:vertical-rl;transform:rotate(180deg);font-weight:700;letter-spacing:.12em;font-size:14px;text-transform:uppercase;opacity:.75}
+.pb{padding:20px;display:grid;gap:12px}
+.pb h2{color:#2d2a25}
+.lab{font-weight:700;font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:#6b5f4f;margin:0}
+.pb p{margin:0}
+.top{display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;align-items:start}
+.pol{background:#fbf8f0;padding:7px 7px 26px;box-shadow:0 4px 10px #0003;transform:rotate(-3deg);position:relative}
+.pol svg{display:block;width:100%;aspect-ratio:1}
+.pol small{position:absolute;bottom:5px;left:0;right:0;text-align:center;font:13px "Special Elite",monospace;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+.secret{background:#2d2a25;color:#efe7d4;padding:14px;cursor:pointer;border:0;text-align:left;width:100%;font:16px/1.5 "Special Elite",monospace}
+.secret.hid{color:transparent;text-shadow:0 0 9px #efe7d4aa;user-select:none}
+.secret b{display:block;font:700 14px "Barlow Condensed",sans-serif;letter-spacing:.1em;color:var(--no);text-shadow:none}
+ul.goals{margin:0;padding-left:20px}ul.goals li{margin:3px 0}
+.clue{border-left:3px solid var(--c);padding-left:12px}
+.lock{display:grid;gap:8px;background:#ddd3bd;padding:14px}
+.lock .row input{flex:1 1 160px;width:auto}
+.err{color:var(--blood);font:15px "Special Elite",monospace;min-height:1em;margin:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:16px}
+.g{background:#e9e1cf;color:#2d2a25;display:grid;grid-template-columns:10px minmax(0,1fr)}
+.g>div:first-child{background:var(--c)}
+.g .in{padding:14px;display:grid;gap:8px}
+.g h3{font:400 21px/1.1 "Alfa Slab One",serif;margin:0}
+.g input{background:#fbf6ea;border-bottom:1px dashed #b5a98f}
+.link{font:14px "Special Elite",monospace;overflow-wrap:anywhere;color:#6b5f4f}
+.off{opacity:.45}
+.rounds{display:grid;gap:16px}
+.rd{background:var(--deep);padding:20px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px 20px;align-items:start;border-left:6px solid var(--c)}
+.word{font:400 clamp(26px,5vw,40px)/1 "Alfa Slab One",serif;color:var(--c5);text-align:right}
+.word small{display:block;font:600 14px "Barlow Condensed",sans-serif;letter-spacing:.1em;color:var(--mute)}
+.rd ol{margin:6px 0 0;padding-left:20px}
+.verdict{font:400 clamp(30px,6vw,52px)/1 "Alfa Slab One",serif;text-transform:uppercase}
+.keys{position:fixed;left:0;right:0;bottom:0;display:flex;gap:18px;padding:12px max(5vw,16px);background:linear-gradient(transparent,#2f3338cc 40%);z-index:2}
+.key{background:none;border:0;color:var(--bone);font:600 19px "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;display:flex;gap:8px;align-items:center;cursor:pointer;min-height:44px;padding:0}
+.key .r{color:var(--no)}.key .g2{color:var(--ok)}
+@media(max-width:760px){.hero{grid-template-columns:minmax(0,1fr)}.hero .art{order:-1;max-height:320px}.rd{grid-template-columns:minmax(0,1fr)}.word{text-align:left}}
+@media(max-width:440px){.top{grid-template-columns:96px minmax(0,1fr)}.paper{grid-template-columns:40px minmax(0,1fr)}.pb{padding:16px}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="keys"><button class="key" id="kb" type="button"><b class="r">B</b> Back</button><button class="key" id="ka" type="button"><b class="g2">A</b> <span id="kal">Next</span></button></div>
+<script>
+{
+const BASE='https://bhigayo.github.io/velvet/';
+const HOST='host-m9v2',HOSTCODE='BOURBON';
+const R=[{w:'LIGHTS',t:'The Body'},{w:'SEARCH',t:'The Search'},{w:'VERDICT',t:'The Lab Report'},{w:'CONFESS',t:'The Confession'}];
+const C=[
+{id:'dolly',code:'k4m9',name:'Dolores "Dolly" Reyes',role:'Headline singer',c:'--c7',acc:'bun',core:1,
+ costume:'Sequins, pearls, red lipstick, a feather boa if you have one.',
+ pub:'Star singer of the Velvet Room for six years. Sweet on stage, sharp as a razor off it. You found Vinnie\'s body at 11:40pm.',
+ secret:'Tonight Vinnie told you he had sold your contract to a New York label for $10,000, and you would not see a cent. You screamed at him in the dressing-room corridor at 9:30.',
+ goals:['Keep the contract fight quiet for as long as you can.','Find out who was in Vinnie\'s office before you.','Get Sam to stop following you around.'],
+ r:['You found Vinnie slumped at his desk at 11:40. His glass was empty and the 1950 reserve bourbon stood open beside him. A second glass had a smear of dark red lipstick on it. Not your shade. Tell everyone what you saw.',
+ 'When you found him, his desk drawer was open with a note in his handwriting: "F. $4,200. Monday, or I call Sal." You pocketed it in a panic. Reveal it if anyone asks whether you took anything.',
+ 'You remember something: Vinnie only ever drank the 1950 reserve, and it always lived behind the bar, never in his office. Somebody carried it upstairs tonight. Share this.']},
+{id:'frankie',code:'t8q2',name:'Frankie Moretti',role:'Bar manager, Vinnie\'s nephew',c:'--c1',acc:'slick',core:1,killer:1,
+ costume:'Waistcoat, rolled sleeves, slicked hair, a bar towel over your shoulder.',
+ pub:'Vinnie\'s nephew. You run the bar, the stock and the storeroom. Everybody\'s friend, always buying a round.',
+ secret:'YOU ARE THE MURDERER. You have skimmed $4,200 from the till to pay a loan shark called Sal. Vinnie found out and gave you until Monday. At 10:40 you took rat poison from the storeroom (only you and Vinnie have keys), laced the 1950 reserve bourbon, and at 10:45 carried it up to his office.',
+ goals:['Do not get caught. You may lie about anything.','Get the group to accuse someone else in the final vote.','Point suspicion at Marguerite: her lipstick is on a glass.','If the bourbon comes up, say Vinnie asked you to bring it up.'],
+ r:['Your cover story: you were behind the bar all night, apart from a quick trip to the cellar for ice around 10:45. You saw Marguerite go up to the office at 11:15 looking furious. Make sure people hear that.',
+ 'If the storeroom or rat poison comes up, say rats have been bad lately and you used it last week. Deflect onto Eddie Kwan, who has been threatening Vinnie for months.',
+ 'The lab will say the poison was in the bottle. Your line: "That bottle sat behind the bar all night. Anyone could have got to it." Ray Calloway drank at the bar all evening. Lean on that.'],
+ confess:'Read this aloud when the host calls for it: "Fine. It was me. I took four thousand two hundred from the till, and Sal doesn\'t do payment plans. Uncle Vinnie gave me till Monday. I figured he\'d rather drink his precious reserve one last time. Happy new year."'},
+{id:'ray',code:'b6x1',name:'Ray Calloway',role:'Detective, off duty',c:'--c4',acc:'fedora',core:1,
+ costume:'Trench coat, loosened tie, fedora. Make a badge if you can.',
+ pub:'Detective with the Port Lucien Police, off duty tonight. A regular here. You take charge of the scene because nobody else will.',
+ secret:'You have been on Vinnie\'s payroll for three years: $200 a week to look the other way. Tonight he told you he was done paying, and he had receipts. At 11:35 you knocked on his office door to talk him round. No answer. You did not go in.',
+ goals:['Run the investigation. You are the closest thing to a cop here.','Keep your bribes hidden.','Make sure the real murderer is caught. Vinnie\'s receipts point at you.'],
+ r:['Announce it officially: Vinnie Marchetti is dead in his office. No wound, no struggle, and a smell of bitter almonds. You suspect poison. Nobody leaves.',
+ 'Searching the office, you find an envelope with $200 cash and your name on it. Hide it, or call it a Christmas tip. You also notice the window is locked from inside: whoever did this used the door.',
+ 'The police lab calls at 1am. Read this aloud: the poison was rat poison, and it was in the bourbon bottle itself, not only the glass. The lipstick glass is clean.']},
+{id:'lena',code:'p3z7',name:'Lena Hart',role:'Reporter, Port Lucien Ledger',c:'--c5',acc:'beret',core:1,
+ costume:'Sharp trousers or a pencil skirt, a beret, notebook and pen in hand.',
+ pub:'Reporter for the Port Lucien Ledger. Here "for the music", you say. Never without your notebook.',
+ secret:'You are writing an exposé on Vinnie: bribed cops and money washed through the club. At 11:00 you met him in his office to get his side. He laughed and told you to get out. You left at 11:10. He was alive.',
+ goals:['Get the story.','Find out which cop is crooked.','Do not admit you were in the office unless you are cornered.'],
+ r:['Your notebook: "11:00 to 11:10, Vinnie\'s office. Alive, angry, alone." You left by the main stairs and passed Marguerite on her way up.',
+ 'Your exposé notes say Vinnie paid "R.C." $200 a week. Decide when to drop that bomb.',
+ 'It comes back to you: at 11:00 the 1950 reserve was on Vinnie\'s desk. He laughed and said, "Frankie brought it up. My nephew\'s finally good for something." Share this.']},
+{id:'sam',code:'w5n4',name:'Sam "Sticks" Okafor',role:'Drummer, house band',c:'--c3',acc:'short',core:1,
+ costume:'Dark suit, skinny tie, drumsticks in your pocket.',
+ pub:'Drummer in the house band. Quiet, intense, never misses a beat. Everyone knows you are sweet on Dolly.',
+ secret:'At 10:30 you argued with Vinnie in the hallway. He threatened to fire the band and you said, "Someone ought to shut you up for good." People heard you.',
+ goals:['Explain that argument before someone else does.','Protect Dolly. You are scared she did it.','Find out who was on the office stairs.'],
+ r:['The band took a break from 10:30 to 11:30. You spent most of it smoking in the alley. Rosie came out once and took your picture.',
+ 'From the alley you could see the upstairs corridor window. Around 10:45 a man walked along it carrying a bottle. You could not see his face, but he had a towel over his shoulder.',
+ 'Just before the band went back on, you saw Ray Calloway at the bar. He had not moved for twenty minutes.']},
+{id:'margo',code:'h2r8',name:'Marguerite Marchetti',role:'Vinnie\'s wife',c:'--c2',acc:'bun',core:1,
+ costume:'Evening gown, gloves, a (fake) fur stole, dark red lipstick.',
+ pub:'Vinnie\'s wife of twelve years. Glamorous, cool, and the only person who ever talked back to him.',
+ secret:'You are leaving Vinnie. At 11:15 you went to his office to tell him, drank from a clean glass and left at 11:25. He was alive, pouring himself a bourbon. You also know his life insurance pays you $50,000.',
+ goals:['Hide that you were in the office, until the lipstick glass gives you away.','Do not mention the insurance.','Find out who Vinnie meant when he said someone in the family was robbing him.'],
+ r:['Tonight Vinnie told you: "Someone in this family is robbing me. I\'ll deal with it Monday." Keep it to yourself for now. It sounds like a motive for you.',
+ 'When the lipstick glass comes up, admit you were there from 11:15 to 11:25. As you left he poured himself a bourbon from the bottle on his desk. He was fine.',
+ 'You saw Frankie come out of the storeroom at about 10:40 and lock it behind him. Odd: he never fetches stock himself on a busy night. Share this.']},
+{id:'eddie',code:'j9c5',name:'Eddie Kwan',role:'Owner of the Blue Lantern',c:'--c6',acc:'fedora',core:0,
+ costume:'Sharp suit, pocket square, an unlit cigar.',
+ pub:'You own the Blue Lantern, the club across the street, and you have been Vinnie\'s rival for ten years. You came tonight "to wish him a happy new year".',
+ secret:'Last month you offered Vinnie $80,000 for the Velvet Room. He refused and humiliated you in front of your staff. You swore you would get the club one way or another.',
+ goals:['Look sorry about Vinnie.','Find out whether Marguerite would sell you the club now.','Stay out of trouble.'],
+ r:['You sat at a corner table all night with your accountant. You never went upstairs.',
+ 'At 10:15 you overheard Frankie on the payphone: "I\'ll have it by Monday, Sal, I swear." Use it to take the heat off yourself.',
+ 'You know the name Sal Brancato. He lends money down at the docks, and people who do not pay him end up in the river.']},
+{id:'rosie',code:'f7d3',name:'Rosie Bell',role:'Cigarette girl with a Polaroid',c:'--c8',acc:'pillbox',core:0,
+ costume:'Pillbox hat, a tray (any box will do), a camera.',
+ pub:'Cigarette girl at the Velvet Room. You carry a Polaroid camera and snap guests for a dollar.',
+ secret:'You have been selling Polaroids of Vinnie\'s guests to Lena for her story.',
+ goals:['Do not let anyone take your camera.','Trade your photos for information.'],
+ r:['Your Polaroids so far: 10:35, Sam smoking in the alley. 11:13, Marguerite heading up the office stairs.',
+ 'The big one: a Polaroid stamped 10:47 shows Frankie in the upstairs corridor holding a bourbon bottle. Trade it wisely.',
+ 'Last week you sold Lena a photo of Ray Calloway taking an envelope from Vinnie.']}];
+const SOLUTION=[
+ ['Who','Frankie Moretti, Vinnie\'s nephew and bar manager.'],
+ ['Why','He had skimmed $4,200 from the till to pay loan shark Sal Brancato. Vinnie found out and gave him until Monday (the "F. $4,200" note, the payphone call).'],
+ ['How','At 10:40 he took rat poison from the storeroom, which only he and Vinnie could open (Marguerite saw him lock it). He laced the 1950 reserve bourbon.'],
+ ['When','At 10:45 he carried the bottle up to the office (Sam saw a man with a towel, Rosie\'s 10:47 Polaroid, Vinnie told Lena "Frankie brought it up"). Vinnie poured his drink as Marguerite left at 11:25 and was dead before Ray knocked at 11:35. Dolly found him at 11:40.'],
+ ['Red herrings','Marguerite\'s lipstick glass was clean. Ray\'s bribes, Lena\'s exposé, Sam\'s threat, Dolly\'s contract and Eddie\'s offer were all motives, but none of them had the bottle.']];
+const NIGHT=[
+ {t:'Arrival',c:'--c4',w:'',steps:['Send everyone their invite a week before. Give the 1968 dress code.','As guests arrive, everyone mingles in character. They can share their public story, not their secret.','Nobody knows about a murder yet. Let it run 30 to 45 minutes.','Kill the lights, scream, then announce: "Vinnie Marchetti is dead." Read out the word.']},
+ {t:'The Body',c:'--c7',w:'LIGHTS',steps:['Guests enter LIGHTS on their phones to unlock round one.','Ray takes charge of the scene. Dolly describes finding the body.','Let questioning run about 30 minutes.']},
+ {t:'The Search',c:'--c5',w:'SEARCH',steps:['Announce the search of the club. Guests unlock round two.','If nobody is playing Rosie, read this aloud: "A Polaroid is found on the stairs, stamped 10:47. It shows Frankie in the upstairs corridor, holding a bourbon bottle."','About 30 minutes.']},
+ {t:'The Lab Report',c:'--c2',w:'VERDICT',steps:['"The police lab is on the phone." Guests unlock round three. Ray reads the lab result.','Final 20 minutes of arguing.','Everyone seals an accusation on the Accuse tab. Then go round the room: who did it, and why?']},
+ {t:'The Confession',c:'--c1',w:'CONFESS',steps:['Announce the word. Frankie\'s phone shows a confession to read aloud.','Everyone\'s phone reveals whether their sealed accusation was right.','Read the solution from your Solution tab. Crown the best detective and the best liar.']}];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store={get(k,d){try{const v=localStorage.getItem('vr-'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('vr-'+k,JSON.stringify(v))}catch(e){}}};
+const ACC={fedora:'<path d="M26 36h48l-7-5c-3-13-31-13-34 0z" fill="#15181b"/>',bun:'<circle cx="50" cy="22" r="8" fill="#15181b"/><path d="M33 46c-2-18 36-18 34 0c-3-8-10-12-17-12s-14 4-17 12z" fill="#15181b"/>',
+slick:'<path d="M34 42c-1-16 33-17 32-1c-6-6-26-6-32 1z" fill="#15181b"/>',beret:'<path d="M31 35c5-13 38-13 42-2c-9 3-32 5-42 2z" fill="#15181b"/>',
+short:'<path d="M35 40c0-13 30-13 30 0c-4-4-26-4-30 0z" fill="#15181b"/>',pillbox:'<rect x="39" y="21" width="22" height="9" rx="2" fill="#15181b"/><path d="M33 47c-2-17 36-17 34 0c-3-7-31-7-34 0z" fill="#15181b"/>'};
+const face=(c,lab)=>`<div class="pol"><svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" fill="#59606a"/><circle cx="50" cy="46" r="15" fill="#2a2f34"/><path d="M18 100c3-28 61-28 64 0z" fill="#2a2f34"/>${ACC[c.acc]}</svg><small>${esc(lab||c.name.replace(/ ".*"/,''))}</small></div>`;
+const app=document.getElementById('app');
+let tab=0,tabs=[],render=()=>{};
+function navHTML(){return `<nav>${tabs.map((t,i)=>`${i?'<i>|</i>':''}<button type="button" data-tab="${i}" ${i===tab?'aria-current="page"':''}>${t}</button>`).join('')}</nav>`}
+async function copy(btn,text){try{await navigator.clipboard.writeText(text);btn.textContent='Copied'}catch(e){btn.textContent='Copy failed: select the text below'}setTimeout(()=>btn.textContent='Copy invite',2200)}
+
+/* landing */
+function landing(){
+  tabs=[];
+  app.innerHTML=`<section class="view"><h1>Murder at the Velvet Room</h1><p class="sub">Port Lucien · New Year's Eve · 1968</p>
+  <div class="hero"><div class="panel"><p style="margin:0;font-size:20px">A murder-mystery party for 6 to 8 guests. Everyone gets a secret case file on their phone. Clues unlock round by round when the host announces the code word.</p>
+  <p class="tw mute" style="margin:0">Guests: open the personal link your host sent you.</p>
+  <label class="lab" for="hc" style="color:var(--mute)">Hosting? Enter the host code</label>
+  <div class="row"><input id="hc" autocomplete="off" style="flex:1 1 160px;width:auto"><button class="btn" id="hgo" type="button">Open host desk</button></div><p class="err" id="herr"></p></div>
+  <svg class="art" viewBox="0 0 560 440" role="img" aria-label="Painted scene: a bourbon bottle and a lipstick-marked glass on Vinnie's desk">
+   <defs><filter id="paint"><feTurbulence type="fractalNoise" baseFrequency=".02 .4" numOctaves="2" seed="9"/><feDisplacementMap in="SourceGraphic" scale="9"/></filter>
+   <linearGradient id="lamp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3d58a" stop-opacity=".85"/><stop offset="1" stop-color="#f3d58a" stop-opacity="0"/></linearGradient></defs>
+   <g filter="url(#paint)">${['--c4','--c2','--c7','--c5','--c3','--c1','--c8'].map((c,i)=>`<rect x="${8+i*78}" y="${14+(i%2)*14}" width="70" height="${300-(i%3)*18}" fill="var(${c})" opacity=".85"/>`).join('')}</g>
+   <path d="M330 40h120l40 170H290z" fill="url(#lamp)"/><path d="M350 20h80l14 30h-108z" fill="#2c3136"/>
+   <rect x="20" y="300" width="520" height="140" fill="#3b2a22"/><rect x="20" y="300" width="520" height="12" fill="#5a4032"/>
+   <g filter="url(#paint)"><path d="M300 120h24v40c18 8 22 22 22 40v100h-68V200c0-18 4-32 22-40z" fill="#6b3a1f"/><rect x="300" y="104" width="24" height="18" fill="#2a1c14"/>
+   <rect x="284" y="215" width="56" height="44" fill="#e9e1cf"/><text x="312" y="236" text-anchor="middle" font-family="Special Elite" font-size="10" fill="#2d2a25">RESERVE</text><text x="312" y="250" text-anchor="middle" font-family="Special Elite" font-size="10" fill="#2d2a25">1950</text>
+   <path d="M380 240h50l-6 60h-38z" fill="#dfe6ea" opacity=".7"/><path d="M386 246c8-4 16 3 20-2" stroke="#8e2a2a" stroke-width="5" fill="none"/>
+   <path d="M210 262h44l-5 38h-34z" fill="#dfe6ea" opacity=".55"/></g>
+   <rect x="60" y="330" width="170" height="90" fill="#efe7d4" transform="rotate(-6 145 375)"/><text x="80" y="362" font-family="Special Elite" font-size="13" fill="#2d2a25" transform="rotate(-6 145 375)">F. $4,200.</text><text x="80" y="384" font-family="Special Elite" font-size="13" fill="#2d2a25" transform="rotate(-6 145 375)">Monday, or I</text><text x="80" y="406" font-family="Special Elite" font-size="13" fill="#2d2a25" transform="rotate(-6 145 375)">call Sal.</text>
+  </svg></div></section>`;
+  const go=()=>{if(document.getElementById('hc').value.trim().toUpperCase()===HOSTCODE)location.hash=HOST;else document.getElementById('herr').textContent='That is not the host code.'};
+  document.getElementById('hgo').onclick=go;document.getElementById('hc').onkeydown=e=>{if(e.key==='Enter')go()};
+}
+
+/* host desk */
+function host(){
+  tabs=['Guests','The night','Solution'];
+  let n=store.get('n',8),names=store.get('names',{}),shown=false;
+  render=()=>{
+    const inPlay=C.filter(c=>c.core||(n>=7&&c.id==='eddie')||(n>=8&&c.id==='rosie'));
+    let body='';
+    if(tab===0)body=`<h1>Host desk</h1><p class="sub">Invite your guests · ${n} players</p>
+     <div class="row" style="margin-bottom:22px">${[6,7,8].map(k=>`<button class="btn ${k===n?'':'ghost'}" data-n="${k}" type="button">${k} players</button>`).join('')}</div>
+     <p class="tw mute" style="margin:0 0 18px">Fill in who plays who, then copy each invite and send it to that guest only. Their link opens their secret file. Assign the killer, Frankie, to someone who can keep a straight face. Any guest can play any character: change the name to suit.</p>
+     <div class="grid">${C.map(c=>{const on=inPlay.includes(c),url=`${BASE}#velvet-${c.code}`;return `<div class="g ${on?'':'off'}" style="--c:var(${c.c})"><div></div><div class="in">
+      <h3>${esc(c.name)}</h3><p class="lab">${esc(c.role)}${c.killer?' · the killer':''}${on?'':' · not in a '+n+'-player game'}</p>
+      ${on?`<input placeholder="Guest's name" value="${esc(names[c.id]||'')}" data-name="${c.id}" aria-label="Guest playing ${esc(c.name)}">
+      <div class="row"><button class="btn" type="button" data-copy="${c.id}">Copy invite</button></div><p class="link">${esc(url)}</p>`:''}</div></div>`}).join('')}</div>`;
+    if(tab===1)body=`<h1>The night</h1><p class="sub">Run it round by round · about 2.5 hours</p>
+     <div class="rounds">${NIGHT.map(r=>`<div class="rd" style="--c:var(${r.c})"><div><h2>${r.t}</h2><ol>${r.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol></div>${r.w?`<div class="word"><small>Announce</small>${r.w}</div>`:''}</div>`).join('')}</div>`;
+    if(tab===2)body=`<h1>Solution</h1><p class="sub">For the host's eyes only</p>
+     ${shown?`<div class="paper" style="--c:var(--c1)"><div class="strip"><span>Case closed</span></div><div class="pb">${SOLUTION.map(([k,v])=>`<div><p class="lab">${k}</p><p class="tw">${esc(v)}</p></div>`).join('')}</div></div>`
+     :`<div class="panel" style="justify-items:start"><p style="margin:0">Only open this if you are not playing a character, or once the night is over.</p><button class="btn red" type="button" id="reveal">Reveal the killer</button></div>`}`;
+    app.innerHTML=`<section class="view">${navHTML()}${body}</section>`;
+    const rv=document.getElementById('reveal');if(rv)rv.onclick=()=>{shown=true;render()};
+    app.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{n=+b.dataset.n;store.set('n',n);render()});
+    app.querySelectorAll('[data-name]').forEach(i=>i.oninput=()=>{names[i.dataset.name]=i.value;store.set('names',names)});
+    app.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>{const c=C.find(x=>x.id===b.dataset.copy),g=names[c.id]?names[c.id].trim()+', y':'Y';
+      copy(b,`${g}ou are cordially invited to the Velvet Room, Port Lucien, on New Year's Eve 1968.\n\nSomeone will not survive the night.\n\nYou will attend as ${c.name}, ${c.role.toLowerCase()}. Dress code: ${c.costume}\n\nYour secret file (do not share it with anyone): ${BASE}#velvet-${c.code}`)});
+  };
+  render();
+}
+
+/* guest file */
+function guest(c){
+  tabs=['File','Clues','Notes','Accuse'];
+  const k='g-'+c.code;let st=store.get(k,{u:0,notes:'',acc:null}),open=false;
+  const save=()=>store.set(k,st);
+  const unlock=(w,errEl)=>{const i=R.findIndex(r=>r.w===w.trim().toUpperCase());if(i<0){errEl.textContent='That is not the word. Wait for the host.';return}st.u=Math.max(st.u,i+1);save();render()};
+  const lockHTML=i=>`<div class="lock"><p class="lab">Round ${i+1}: ${R[i].t}</p><p style="margin:0">Locked. Enter the word when the host announces it.</p><div class="row"><input data-w autocomplete="off" aria-label="Code word"><button class="btn" type="button" data-go>Unlock</button></div><p class="err"></p></div>`;
+  render=()=>{
+    let body='';
+    if(tab===0)body=`<h1>Your file</h1><p class="sub">Private. Do not show anyone.</p>
+     <div class="paper" style="--c:var(${c.c})"><div class="strip"><span>File ${c.code.toUpperCase()}</span></div><div class="pb">
+      <div class="top">${face(c)}<div><p class="lab">${esc(c.role)}</p><h2>${esc(c.name)}</h2><p>${esc(c.pub)}</p></div></div>
+      <div><p class="lab">Wear</p><p>${esc(c.costume)}</p></div>
+      <button class="secret ${open?'':'hid'}" type="button" id="sec"><b>${open?'Your secret · tap to hide':'Your secret · tap to read, cover your screen'}</b>${esc(c.secret)}</button>
+      <div><p class="lab">Your goals tonight</p><ul class="goals">${c.goals.map(g=>`<li>${esc(g)}</li>`).join('')}</ul></div>
+      <p class="tw" style="color:#6b5f4f">The victim: Vincent "Vinnie" Marchetti, owner of the Velvet Room. Nobody knows he is dead until the lights go out.</p></div></div>`;
+    if(tab===1)body=`<h1>Evidence</h1><p class="sub">${esc(c.name)} · round ${Math.min(st.u,3)} of 3</p>
+     <div class="paper" style="--c:var(${c.c})"><div class="strip"><span>Evidence</span></div><div class="pb">
+     ${[0,1,2].map(i=>i<st.u?`<div class="clue"><p class="lab">Round ${i+1}: ${R[i].t}</p><p class="tw">${esc(c.r[i])}</p></div>`:i===st.u?lockHTML(i):'').join('')}
+     ${st.u>=3&&st.u<4?lockHTML(3).replace('Locked. Enter the word when the host announces it.','The finale unlocks when the host calls for confessions.'):''}
+     ${st.u>=4&&c.confess?`<div class="clue" style="--c:var(--blood)"><p class="lab">Your confession</p><p class="tw">${esc(c.confess)}</p></div>`:''}
+     ${st.u>=4?'<p class="tw">The case is closed. See the Accuse tab for the verdict.</p>':''}</div></div>`;
+    if(tab===2)body=`<h1>Notes</h1><p class="sub">Who said what, and when</p><textarea id="notes" aria-label="Your notes" placeholder="10:45, who was on the stairs?">${esc(st.notes)}</textarea><p class="tw mute">Saved on this phone as you type.</p>`;
+    if(tab===3){const others=C.filter(x=>x.id!==c.id);
+     body=`<h1>Accuse</h1><p class="sub">Seal your answer before the confession</p>`+
+     (st.u<3?`<div class="panel"><p style="margin:0">Accusations open in round three, after the lab report.</p></div>`:
+     !st.acc?`<div class="panel"><label class="lab" for="who" style="color:var(--mute)">Who killed Vinnie?</label><select id="who">${others.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select>
+      <label class="lab" for="why" style="color:var(--mute)">Why, and how? Name your evidence.</label><textarea id="why" style="min-height:120px"></textarea>
+      <div class="row"><button class="btn red" type="button" id="seal">Seal my accusation</button></div><p class="tw mute" style="margin:0">Once sealed, it cannot be changed.</p></div>`:
+     `<div class="paper" style="--c:var(--blood)"><div class="strip"><span>Sealed</span></div><div class="pb"><p class="lab">You accused</p><h2>${esc(C.find(x=>x.id===st.acc.who).name)}</h2><p class="tw">${esc(st.acc.why||'No reason given.')}</p>
+      ${st.u>=4?(()=>{const right=C.find(x=>x.id===st.acc.who).killer;return `<p class="verdict" style="color:${right?'#3f7a2c':'var(--blood)'}">${c.killer?(right?'You framed yourself?':'You got away with it… until now'):right?'Case cracked':'Wrong suspect'}</p>${SOLUTION.map(([a,b])=>`<div><p class="lab">${a}</p><p class="tw">${esc(b)}</p></div>`).join('')}`})():'<p class="tw mute">The verdict appears when the host announces the final word.</p>'}</div></div>`)}
+    app.innerHTML=`<section class="view">${navHTML()}${body}</section>`;
+    const s=document.getElementById('sec');if(s)s.onclick=()=>{open=!open;render()};
+    const go=app.querySelector('[data-go]');if(go){const inp=app.querySelector('[data-w]'),er=app.querySelector('.lock .err');go.onclick=()=>unlock(inp.value,er);inp.onkeydown=e=>{if(e.key==='Enter')unlock(inp.value,er)}}
+    const nt=document.getElementById('notes');if(nt)nt.oninput=()=>{st.notes=nt.value;save()};
+    const sl=document.getElementById('seal');if(sl)sl.onclick=()=>{st.acc={who:document.getElementById('who').value,why:document.getElementById('why').value.trim()};save();render()};
+  };
+  render();
+}
+
+function route(){
+  const h=location.hash.slice(1);tab=0;render=()=>{};
+  const c=C.find(x=>h==='velvet-'+x.code);
+  if(h===HOST)host();else if(c)guest(c);else landing();
+  document.getElementById('kal').textContent=tabs.length?'Next':'Enter';
+  window.scrollTo(0,0);
+}
+app.addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b){tab=+b.dataset.tab;render();window.scrollTo(0,0)}});
+document.getElementById('kb').onclick=()=>{if(tabs.length&&tab>0){tab--;render();window.scrollTo(0,0)}};
+document.getElementById('ka').onclick=()=>{if(tabs.length){tab=Math.min(tabs.length-1,tab+1);render();window.scrollTo(0,0)}else{const b=document.getElementById('hgo');if(b)b.click()}};
+window.addEventListener('hashchange',route);
+route();
+}
+</script>
+</body>
+</html>

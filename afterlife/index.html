@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Afterlife</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Barlow+Condensed:wght@400;500;600;700&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Special+Elite&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<style>
+/* VOICE: a living 1968 city you watch like a nosy neighbour; dry newspaper humour.
+   IDEA: a printed street map of Port Lucien come alive, with a city desk logging every life on it.
+   PICTURE: the painted map itself: buildings, park, the Velvet Room, residents walking, day turning to night, rain.
+   COLOUR/TYPE: oxblood ground, aged newsprint cream, mustard, faded teal, sepia ink; Alfa Slab, Barlow Condensed, typewriter, blackletter paper.
+   LAYOUT: title, then map (picture) beside a city desk panel: clock, people, paper. Stacks on phones. */
+:root{color-scheme:dark;--bg:#4a1f1c;--deep:#3a1715;--cream:#efe4cc;--paper:#e8dcc0;--ink:#2b211b;--sepia:#8a6a4a;--mus:#d9a441;--teal:#3f7f7a;--ox:#8e2f2a;--sage:#8aa37b;--mute:#d8c3a5}
+:root[data-theme=light],:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--cream);font:17px/1.45 "Barlow Condensed",Arial Narrow,sans-serif;overflow-x:clip}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.2;mix-blend-mode:overlay;
+background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.wrap{max-width:1320px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,14px) 40px}
+h1{font:400 clamp(48px,10vw,118px)/.88 "Alfa Slab One",Rockwell,serif;margin:0;color:var(--cream);text-transform:uppercase;letter-spacing:.01em}
+.sub{font-weight:600;font-size:clamp(17px,2vw,21px);text-transform:uppercase;letter-spacing:.05em;margin:6px 0 18px;color:var(--mus)}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:18px;align-items:start}
+.mapbox{background:var(--paper);padding:10px;box-shadow:0 18px 40px #0007;transform:rotate(-.4deg);position:relative}
+.mapbox::before{content:"";position:absolute;width:110px;height:26px;background:#e9d9a8cc;top:-12px;left:40px;transform:rotate(-6deg)}
+canvas{display:block;width:100%;height:auto;cursor:pointer;touch-action:manipulation}
+.panel{background:var(--cream);color:var(--ink);box-shadow:0 18px 40px #0007;display:grid}
+.clock{background:var(--ink);color:var(--cream);padding:14px 16px;display:grid;gap:10px}
+.time{font:400 34px/1 "Alfa Slab One",serif;font-variant-numeric:tabular-nums}
+.wx{font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mus)}
+.speed{display:flex;flex-wrap:wrap;gap:6px}
+.speed button,.tabs button,.btn{font:600 17px "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;min-height:44px;padding:0 14px;border:0;cursor:pointer}
+.speed button{background:#4b3a2e;color:var(--cream)}.speed button[aria-pressed=true]{background:var(--mus);color:var(--ink)}
+.tabs{display:flex;border-bottom:2px solid var(--ink)}
+.tabs button{flex:1;background:transparent;color:var(--sepia)}.tabs button[aria-current]{color:var(--ink);background:var(--paper);font-weight:700}
+button:focus-visible{outline:3px solid var(--mus);outline-offset:2px}
+.tab{padding:14px 16px;max-height:560px;overflow-y:auto}
+.feed{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.feed li{font:15px/1.4 "Special Elite",monospace;border-left:3px solid var(--c,var(--sepia));padding-left:9px}
+.feed time{display:block;font:600 13px "Barlow Condensed",sans-serif;letter-spacing:.06em;color:var(--sepia)}
+.plist{display:grid;gap:4px}
+.pr{display:grid;grid-template-columns:14px minmax(0,1fr) 70px;gap:10px;align-items:center;background:none;border:0;padding:6px 4px;min-height:44px;cursor:pointer;text-align:left;font:16px "Barlow Condensed",sans-serif;color:var(--ink);border-bottom:1px dashed #c9b897}
+.pr[aria-current]{background:var(--paper)}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--c);border:2px solid var(--ink)}
+.pr small{color:var(--sepia);display:block;font-size:14px;line-height:1.2}
+.bar{height:8px;background:#d8c9a8;position:relative}.bar i{position:absolute;inset:0 auto 0 0;background:var(--c,var(--teal))}
+.card{display:grid;gap:10px}
+.card h2{font:400 30px/1 "Alfa Slab One",serif;margin:0}
+.lab{font-weight:700;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--sepia);margin:0}
+.thought{font:16px/1.4 "Special Elite",monospace;background:var(--paper);padding:10px;margin:0}
+.needs{display:grid;grid-template-columns:70px minmax(0,1fr) 34px;gap:6px 10px;align-items:center;font-size:15px}
+.needs span:last-child,.needs .n{text-align:right;font-variant-numeric:tabular-nums}
+.rel{display:flex;flex-wrap:wrap;gap:6px}.rel span{font-size:15px;padding:2px 8px;background:var(--paper);border-left:4px solid var(--c)}
+.mem{margin:0;padding-left:18px;font:14.5px/1.4 "Special Elite",monospace}
+.back{background:none;border:0;color:var(--ox);font:700 16px "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;min-height:44px;padding:0;justify-self:start}
+.gz{background:#efe6cf;background-image:radial-gradient(#0000000f 1px,transparent 1.2px);background-size:4px 4px;padding:14px;border:1px solid #c9b897;display:grid;gap:8px;font-family:"Old Standard TT",Georgia,serif}
+.gz .mast{font:34px/1 "UnifrakturMaguntia",serif;text-align:center}
+.gz .dl{display:flex;justify-content:space-between;border-block:2px solid var(--ink);padding:2px 0;font-size:12.5px;text-transform:uppercase}
+.gz h3{font:400 24px/1.05 "Alfa Slab One",serif;margin:4px 0 0;text-transform:uppercase;text-wrap:balance}
+.gz h4{margin:6px 0 0;font-size:16px;line-height:1.15}.gz p{margin:0;font-size:14px}
+.gz article{border-top:1px solid #2b211b55;padding-top:6px}
+.empty{font:15px "Special Elite",monospace;color:var(--sepia)}
+.gm{display:grid;gap:12px}
+.gm select,.gm input{font:17px "Barlow Condensed",sans-serif;min-height:44px;padding:6px 10px;border:0;background:var(--paper);color:var(--ink);width:100%}
+.pw{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.pw button{background:var(--ink);color:var(--cream);border:0;padding:10px 12px;min-height:58px;text-align:left;cursor:pointer;font:600 17px/1.15 "Barlow Condensed",sans-serif;letter-spacing:.03em;text-transform:uppercase}
+.pw button small{display:block;font:400 14px/1.25 "Barlow Condensed",sans-serif;letter-spacing:0;text-transform:none;color:var(--mute);margin-top:3px}
+.pw button.ox{background:var(--ox)}.pw button.mu{background:var(--mus);color:var(--ink)}.pw button.mu small{color:#4a3a22}
+.pw button:active{transform:translateY(1px)}
+.gsec{border-top:2px solid var(--ink);padding-top:10px;display:grid;gap:8px}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;color:var(--mute);font-size:16px}
+.legend span{display:inline-flex;align-items:center;gap:6px}.legend i{width:12px;height:12px;border-radius:50%;background:var(--c);border:2px solid var(--ink)}
+@media(max-width:980px){.main{grid-template-columns:minmax(0,1fr)}.tab{max-height:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Afterlife</h1>
+  <p class="sub">Port Lucien, 1968 · 20 people · nobody is scripted</p>
+  <div class="main">
+    <div>
+      <div class="mapbox"><canvas id="cv" aria-label="Map of the city block with residents moving between buildings. Tap a person to follow them."></canvas></div>
+      <div class="legend" id="legend"></div>
+    </div>
+    <aside class="panel">
+      <div class="clock"><div class="row" style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap"><div class="time" id="time">Day 1 · 06:00</div><div class="wx" id="wx">Clear</div></div>
+        <div class="speed" id="speed"></div></div>
+      <div class="tabs" id="tabs"><button type="button" data-t="0" aria-current="page">City desk</button><button type="button" data-t="1">People</button><button type="button" data-t="2">The paper</button><button type="button" data-t="3">God mode</button></div>
+      <div class="tab" id="tab"></div>
+    </aside>
+  </div>
+</div>
+<script>
+{
+//SIM<
+const W=1000,H=680;
+let seed=1968;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const L=[
+ {id:'hA',name:'Home A',type:'home',x:30,y:30,w:140,h:100},{id:'hB',name:'Home B',type:'home',x:190,y:30,w:140,h:100},{id:'hC',name:'Home C',type:'home',x:350,y:30,w:140,h:100},
+ {id:'hD',name:'Home D',type:'home',x:30,y:550,w:140,h:100},{id:'hE',name:'Home E',type:'home',x:190,y:550,w:140,h:100},{id:'hF',name:'Home F',type:'home',x:350,y:550,w:140,h:100},
+ {id:'cafe',name:'Café Lumière',type:'biz',x:540,y:30,w:200,h:120,open:[7,21],shift:[7,15],wage:9,col:'#d9a441'},
+ {id:'market',name:"Okafor's Market",type:'biz',x:770,y:30,w:200,h:120,open:[8,20],shift:[8,16],wage:9,col:'#8aa37b'},
+ {id:'park',name:'Fountain Park',type:'park',x:200,y:215,w:320,h:250},
+ {id:'library',name:'Lucien Library',type:'biz',x:580,y:240,w:170,h:140,open:[9,19],shift:[9,17],wage:10,col:'#3f7f7a'},
+ {id:'works',name:'Mill Works',type:'biz',x:790,y:220,w:180,h:200,shift:[8,17],wage:13,col:'#8a6a4a'},
+ {id:'bar',name:'The Velvet Room',type:'biz',x:560,y:520,w:230,h:130,open:[17,2],shift:[17,1],wage:11,col:'#8e2f2a'}];
+const LOC=Object.fromEntries(L.map(l=>[l.id,l]));
+const JOBCOL={cafe:'#d9a441',market:'#8aa37b',library:'#3f7f7a',works:'#a8845c',bar:'#c0473f',none:'#efe4cc'};
+const P=[['Tunde','works','hA'],['Kemi','cafe','hA'],['Marcus','works','hA'],['Aisha','market','hB'],['Jay','bar','hB'],['Zara','library','hB'],['Dolly','bar','hC'],['Frankie','bar','hC'],
+['Ray','works','hC'],['Lena','library','hD'],['Sam','works','hD'],['Margo','none','hD'],['Eddie','market','hE'],['Rosie','cafe','hE'],['Priya','works','hE'],['Tom','none','hF'],
+['Nia','cafe','hF'],['Omar','market','hF'],['Bea','none','hA'],['Leon','works','hD']];
+const people=P.map(([name,job,home],i)=>({i,name,job,home,col:JOBCOL[job],
+ soc:rnd(),dil:.3+rnd()*.7,fru:rnd(),owl:rnd(),money:Math.round(40+rnd()*160),groc:Math.floor(rnd()*4),
+ nd:{hunger:50+rnd()*40,energy:70+rnd()*30,social:40+rnd()*50,fun:40+rnd()*50},
+ x:0,y:0,tx:0,ty:0,loc:home,act:'sleep',phase:'do',until:0,thought:'',mem:[],rel:{},known:{},stats:{bar:0,work:0,friends:0}}));
+const S={t:0,rain:false,rainUntil:0,feed:[],papers:[],day:null};
+const newDay=()=>({take:{cafe:0,market:0,bar:0},friends:[],feuds:[],rainSkip:0,regular:[],god:[],partyN:0});
+S.day=newDay();
+const hour=t=>((t+360)/60)%24;
+const dayN=t=>Math.floor((t+360)/1440)+1;
+const clock=t=>{const m=(t+360)%1440;return `Day ${dayN(t)} · ${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`};
+const inWin=([s,e],h)=>s<e?h>=s&&h<e:h>=s||h<e;
+const isOpen=(l,h)=>!l.closed&&(!l.open||inWin(l.open,h));
+const onShift=(p,h)=>p.job!=='none'&&!LOC[p.job].closed&&inWin(LOC[p.job].shift,h);
+const minsTo=(endH,t)=>{const m=(t+360)%1440;return ((endH*60-m)+1440)%1440||1440};
+function spot(p,l){const a=p.i*2.399,r=12+(p.i%4)*11;return [l.x+l.w/2+Math.cos(a)*Math.min(r,l.w/2-12),l.y+l.h/2+8+Math.sin(a)*Math.min(r,l.h/2-16)]}
+const log=(txt,c)=>{S.feed.unshift({t:S.t,txt,c});if(S.feed.length>80)S.feed.pop()};
+const remember=(p,txt)=>{p.mem.unshift({t:S.t,txt});if(p.mem.length>8)p.mem.pop()};
+const relOf=(a,b)=>a.rel[b.i]||0;
+const ACTS={
+ sleep:{at:p=>p.home,dur:[360,540],eff:{energy:.24},th:'Out cold.'},
+ eat:{at:p=>p.home,dur:[25,40],eff:{hunger:1.3,fun:.05},th:'Cooking at home.'},
+ cafe:{at:()=> 'cafe',cost:9,dur:[30,50],eff:{hunger:1.5,social:.4,fun:.2},th:'Starving. Café Lumière it is.'},
+ shop:{at:()=> 'market',cost:24,dur:[20,30],eff:{fun:.05},th:'Cupboards are empty. Market run.'},
+ work:{at:p=>p.job,eff:{social:.12,fun:-.03},th:p=>`On shift at ${LOC[p.job].name}.`},
+ bar:{at:()=> 'bar',cost:12,dur:[60,150],eff:{social:.7,fun:.6,energy:-.04},th:'Needs a drink and some company.'},
+ park:{at:()=> 'park',dur:[40,90],eff:{fun:.45,social:.3},th:'Getting some air in the park.'},
+ read:{at:()=> 'library',dur:[50,100],eff:{fun:.4},th:'A quiet hour at the library.'},
+ relax:{at:p=>p.home,dur:[40,80],eff:{fun:.15,energy:.03},th:'Feet up at home.'},
+ party:{at:()=> 'park',dur:[90,150],eff:{social:.9,fun:.9,energy:-.05},th:'There is a party in the park!'}};
+const friendsAt=(p,loc)=>people.filter(q=>q!==p&&q.loc===loc&&q.phase==='do'&&relOf(p,q)>=40).length;
+function score(p,k,h,ignoreRain){
+ if(k==='work'&&!onShift(p,h))return -1;
+ const n=p.nd,lack=v=>(100-v)/100,A=ACTS[k],loc=A.at(p);
+ if(A.cost&&p.money<A.cost)return -1;
+ if(loc!==p.home&&!isOpen(LOC[loc],h))return -1;
+ const night=inWin([(21+Math.round(p.owl*3))%24,6+Math.round(p.owl*2)],h);let s=0;
+ switch(k){
+  case 'sleep':s=n.energy>75?.05:night?lack(n.energy)*1.6+.9:n.energy<25?lack(n.energy)*1.6:lack(n.energy)*.5;break;
+  case 'eat':s=p.groc>0?lack(n.hunger)*1.8*(.8+p.fru*.4):-1;break;
+  case 'cafe':s=lack(n.hunger)*1.8*(1.15-p.fru*.5)+lack(n.social)*.4*p.soc;break;
+  case 'shop':s=p.groc<2?.5+lack(n.hunger)*.7:-1;break;
+  case 'work':if(!onShift(p,h))return -1;s=1.4+p.dil*1.6-(n.hunger<30?2.6:0)-(n.energy<8?1.5:0);break;
+  case 'bar':s=(lack(n.social)*1.2*p.soc+lack(n.fun))*(1+friendsAt(p,'bar')*.25)*(.7+p.owl*.6);break;
+  case 'park':s=(lack(n.fun)*.9+lack(n.social)*.6*p.soc)*(1+friendsAt(p,'park')*.25)*(night?.2:1)*(S.rain&&!ignoreRain?.12:1);break;
+  case 'read':s=lack(n.fun)*.8*(1.2-p.soc);break;
+  case 'relax':s=.22;break;
+  case 'party':s=S.party>S.t?2.2+p.soc:-1;break;}
+ const l=LOC[loc],[sx,sy]=[l.x+l.w/2,l.y+l.h/2];
+ return s-Math.hypot(sx-p.x,sy-p.y)/1000*.3+rnd()*.15;
+}
+function decide(p){
+ const h=hour(S.t);let best='relax',bv=-9;
+ for(const k in ACTS){const v=score(p,k,h);if(v>bv){bv=v;best=k}}
+ if(S.rain&&best!=='park'&&score(p,'park',h,true)>bv+.05&&rnd()<.6){S.day.rainSkip++;remember(p,'Wanted the park, but it was pouring.');if(rnd()<.3)log(`${p.name} looks at the rain and gives up on the park.`,'#3f7f7a')}
+ const A=ACTS[best],loc=A.at(p);p.act=best;p.loc=loc;[p.tx,p.ty]=spot(p,LOC[loc]);
+ p.phase='walk';p.thought=typeof A.th==='function'?A.th(p):A.th;
+}
+function start(p){
+ const A=ACTS[p.act],h=hour(S.t);p.phase='do';p.began=S.t;
+ if(p.act==='work'){p.until=S.t+minsTo(LOC[p.job].shift[1],S.t);p.shiftStart=S.t;return}
+ if(p.act==='party'){(S.day.ps=S.day.ps||new Set).add(p.i);S.day.partyN=S.day.ps.size}
+ if(A.cost&&p.free){p.free=false}else if(A.cost){if(p.money<A.cost){p.until=S.t;return}p.money-=A.cost;if(S.day.take[p.loc]!=null)S.day.take[p.loc]+=A.cost;
+  for(const w of people)if(w!==p&&w.job===p.loc&&w.act==='work'&&w.phase==='do'){w.known[p.i]=(w.known[p.i]||0)+1;
+   if(w.known[p.i]===3){if(!p.toldAt||p.toldAt[p.loc]!==1){p.toldAt=p.toldAt||{};p.toldAt[p.loc]=1;log(`${w.name} at ${LOC[p.loc].name} now knows ${p.name}'s usual by heart.`,LOC[p.loc].col);remember(p,`${w.name} remembered my usual. Nice.`)}remember(w,`Knows ${p.name}'s usual order now.`)}}}
+ if(p.act==='shop')p.groc+=4;if(p.act==='eat')p.groc--;
+ p.until=S.t+Math.round(A.dur[0]+rnd()*(A.dur[1]-A.dur[0]));
+}
+function finish(p){
+ if(p.act==='work'){const hrs=(S.t-p.shiftStart)/60,pay=Math.round(hrs*LOC[p.job].wage);p.money+=pay;p.stats.work+=hrs;if(pay>0)remember(p,`Worked ${hrs.toFixed(1)} hours. Paid $${pay}.`)}
+ if(p.act==='bar')p.stats.bar+=(S.t-p.began)/60;
+ if(p.money<12&&!p.broke){p.broke=true;log(`${p.name} is down to $${p.money}. Living on toast until payday.`,'#8e2f2a');remember(p,'Nearly broke.')}
+ if(p.money>=30)p.broke=false;
+ decide(p);
+}
+function socialise(){
+ const groups={};for(const p of people)if(p.phase==='do'&&p.act!=='sleep'&&p.act!=='eat'&&p.act!=='relax')(groups[p.loc]=groups[p.loc]||[]).push(p);
+ for(const loc in groups){const g=groups[loc];for(let a=0;a<g.length;a++)for(let b=a+1;b<g.length;b++){
+  const x=g[a],y=g[b],fate=x.destiny===y.i||y.destiny===x.i,chance=fate?1:(x.soc+y.soc)*(loc==='works'||loc==='library'?.03:.09);if(rnd()>chance)continue;
+  const compat=1-(Math.abs(x.soc-y.soc)+Math.abs(x.owl-y.owl)+Math.abs(x.fru-y.fru))/3;
+  const before=relOf(x,y),d=((compat-.5)*14+(rnd()-.5)*8)*(fate?2.5:1),after=Math.max(-100,Math.min(100,before+d));
+  x.rel[y.i]=y.rel[x.i]=after;x.nd.social=Math.min(100,x.nd.social+6);y.nd.social=Math.min(100,y.nd.social+6);
+  const where=LOC[loc].name;
+  if(fate){x.destiny=y.destiny=null;log(`${x.name} and ${y.name} finally meet at ${where}. ${after>=15?'Sparks fly.':after<=-10?'It does not go well.':'Polite small talk, nothing more.'}`,'#d9a441')}
+  if(before===0){remember(x,`Met ${y.name} at ${where}.`);remember(y,`Met ${x.name} at ${where}.`)}
+  else if(d>3){remember(x,`Had a laugh with ${y.name} at ${where}.`);remember(y,`Had a laugh with ${x.name} at ${where}.`)}
+  else if(d<-3){remember(x,`${y.name} got on my nerves at ${where}.`);remember(y,`${x.name} got on my nerves at ${where}.`)}
+  if(before<40&&after>=40){log(`${x.name} and ${y.name} are friends now. It started at ${where}.`,'#d9a441');S.day.friends.push([x.name,y.name,where]);x.stats.friends++;y.stats.friends++}
+  if(before>-25&&after<=-25){log(`${x.name} and ${y.name} can't stand each other. Words were had at ${where}.`,'#8e2f2a');S.day.feuds.push([x.name,y.name,where])}
+ }}
+}
+function printPaper(){
+ const d=S.day,biz=Object.entries(d.take).sort((a,b)=>b[1]-a[1])[0],st=[];
+ const lush=[...people].sort((a,b)=>b.stats.bar-a.stats.bar)[0],grind=[...people].sort((a,b)=>b.stats.work-a.stats.work)[0];
+ let hl=d.god.length?d.god.at(-1):d.friends.length?`${d.friends[0][0]} and ${d.friends[0][1]}: friends for life?`:d.feuds.length?`Feud at ${d.feuds[0][2]}`:`${LOC[biz[0]].name} takes $${biz[1]}`;
+ if(d.god.length)st.push(['Acts of God',d.god.join('. ')+'. Residents are baffled.']);
+ if(d.partyN)st.push(['Party in the park',`${d.partyN} residents turned up to Fountain Park.`]);
+ st.push([`${LOC[biz[0]].name} tops the takings`,`$${biz[1]} through the till. Café Lumière $${d.take.cafe}, Okafor's $${d.take.market}, the Velvet Room $${d.take.bar}.`]);
+ if(d.friends.length)st.push([`${d.friends.length} new friendship${d.friends.length>1?'s':''}`,d.friends.map(f=>`${f[0]} and ${f[1]} (${f[2]})`).join('; ')+'.']);
+ if(d.feuds.length)st.push([`Bad blood`,d.feuds.map(f=>`${f[0]} v ${f[1]} at ${f[2]}`).join('; ')+'.']);
+ if(lush.stats.bar>1)st.push([`Velvet Room regular`,`${lush.name} spent ${lush.stats.bar.toFixed(1)} hours at the bar.`]);
+ if(grind.stats.work>1)st.push([`Hardest worker`,`${grind.name} clocked ${grind.stats.work.toFixed(1)} hours. Somebody buy them a drink.`]);
+ if(d.rainSkip)st.push([`Rain ruins plans`,`The weather kept residents out of Fountain Park ${d.rainSkip} times.`]);
+ S.papers.unshift({day:dayN(S.t-1),hl,st});
+ for(const p of people)p.stats.bar=p.stats.work=0;
+ S.day=newDay();log(`The Port Lucien Daily has gone to print. Read it on The paper tab.`,'#2b211b');
+}
+function step(){
+ S.t++;const h=hour(S.t);
+ if(S.t%30===0){if(!S.rain&&rnd()<.045){S.rain=true;S.rainUntil=S.t+60+Math.floor(rnd()*180);log('Rain over Port Lucien.','#3f7f7a')}else if(S.rain&&S.t>=S.rainUntil){S.rain=false;log('The rain stops.','#3f7f7a')}}
+ for(const p of people){
+  const n=p.nd,asleep=p.act==='sleep'&&p.phase==='do';n.hunger=Math.max(0,n.hunger-(asleep?.04:.12));n.social=Math.max(0,n.social-(asleep?.02:.07));n.fun=Math.max(0,n.fun-(asleep?.01:.06));if(!asleep)n.energy=Math.max(0,n.energy-.065);
+  if(p.phase==='walk'){const dx=p.tx-p.x,dy=p.ty-p.y,dd=Math.hypot(dx,dy),sp=14;if(dd<=sp){p.x=p.tx;p.y=p.ty;start(p)}else{p.x+=dx/dd*sp;p.y+=dy/dd*sp}}
+  else{const A=ACTS[p.act];for(const k in A.eff)n[k]=Math.max(0,Math.min(100,n[k]+A.eff[k]));
+   if(p.act==='work'&&n.hunger<22){p.thought='Starving. Taking a lunch break.';finish(p);continue}
+   const l=LOC[p.loc];if(S.t>=p.until||(p.act!=='work'&&l.type!=='home'&&!isOpen(l,h))||(p.act==='work'&&LOC[p.job].closed)||(p.act==='sleep'&&n.energy>=99&&!inWin([23,6],h)))finish(p)}
+ }
+ if(S.t%10===0)socialise();
+ if((S.t+360)%1440===0)printPaper();
+ if((S.t+360)%1440===360)for(const p of people)if(p.job==='none'){p.money+=28;if(p.broke&&p.money>=30)p.broke=false}
+}
+for(const p of people){[p.x,p.y]=spot(p,LOC[p.home]);p.tx=p.x;p.ty=p.y;p.until=0}
+const PRESET={'Party animal':{soc:.95,dil:.35,fru:.15,owl:.9},'Workaholic':{soc:.3,dil:1,fru:.8,owl:.2},'Loner':{soc:.05,dil:.6,fru:.6,owl:.5},'Charmer':{soc:.85,dil:.6,fru:.4,owl:.5}};
+const nudge=p=>{if(p.phase==='walk')decide(p);else p.until=S.t};
+const GOD={
+ cash(a){const p=people[a];p.money+=100;p.broke=false;remember(p,'Found $100 on my doorstep. No note.');log(`Mystery cash: $100 turns up on ${p.name}'s doorstep.`,'#d9a441');S.day.god.push(`Mystery cash on ${p.name}'s doorstep`)},
+ wipe(a){const p=people[a],lost=p.money;p.money=0;p.broke=true;remember(p,`Lost every cent. $${lost}, gone.`);log(`${p.name}'s savings vanish. $${lost}, gone.`,'#8e2f2a');S.day.god.push(`${p.name} loses everything`)},
+ rumour(a){const p=people[a];let n=0;for(const q of people)if(q!==p&&(q.soc>.3||relOf(q,p)!==0)){q.rel[p.i]=Math.max(-100,relOf(q,p)-22);remember(q,`Heard a nasty rumour about ${p.name}.`);n++}
+  remember(p,'People are acting strange around me.');log(`A rumour about ${p.name} spreads through Port Lucien. ${n} people heard it.`,'#8e2f2a');S.day.god.push(`Whispers about ${p.name}`)},
+ meet(a,b){if(a===b)return false;const h=hour(S.t),loc=isOpen(LOC.bar,h)?'bar':'park',x=people[a],y=people[b];
+  for(const[p,q]of[[x,y],[y,x]]){p.act=loc;p.loc=loc;[p.tx,p.ty]=spot(p,LOC[loc]);p.phase='walk';p.free=true;p.destiny=q.i;p.thought=`Felt a sudden urge to go to ${LOC[loc].name}.`}
+  log(`Fate nudges ${x.name} and ${y.name} towards ${LOC[loc].name}.`,'#d9a441');S.day.god.push(`${x.name} and ${y.name} brought together`);return true},
+ rain(){if(S.rain){S.rain=false;log('The skies clear on command.','#3f7f7a')}else{S.rain=true;S.rainUntil=S.t+180;log('A storm rolls in out of nowhere.','#3f7f7a');S.day.god.push('Freak storm hits Port Lucien')}},
+ party(){S.party=S.t+180;log('A party kicks off in Fountain Park. Everyone is invited.','#d9a441');S.day.god.push('Mystery party in Fountain Park');
+  for(const p of people)if(!(p.act==='work'&&p.phase==='do')&&!(p.act==='sleep'&&p.phase==='do'&&p.nd.energy<30))nudge(p)},
+ shut(id){const l=LOC[id];l.closed=!l.closed;
+  if(l.closed){for(const p of people)if(p.loc===id){if(p.act==='work')p.shiftStart=S.t;nudge(p)}log(`${l.name} is shut down. Staff sent home without pay.`,l.col);S.day.god.push(`${l.name} shut down`)}
+  else{log(`${l.name} reopens its doors.`,l.col);S.day.god.push(`${l.name} reopens`)}},
+ arrive(name,type,job){if(people.length>=32)return false;name=(name||'').trim().slice(0,16)||'Stranger';
+  const homes=L.filter(l=>l.type==='home').sort((a,b)=>people.filter(p=>p.home===a.id).length-people.filter(p=>p.home===b.id).length);
+  const t=PRESET[type]||PRESET.Charmer,p={i:people.length,name,job,home:homes[0].id,col:JOBCOL[job],...t,money:60,groc:2,
+   nd:{hunger:60,energy:80,social:30,fun:50},x:523,y:H-5,tx:523,ty:H-5,loc:homes[0].id,act:'relax',phase:'do',until:0,thought:'Just got off the bus.',mem:[],rel:{},known:{},stats:{bar:0,work:0,friends:0},isNew:true};
+  people.push(p);remember(p,'Arrived in Port Lucien with $60 and a suitcase.');decide(p);
+  log(`${name} arrives in Port Lucien with $60 and a suitcase.`,'#d9a441');S.day.god.push(`New face in town: ${name}`);return true}};
+//SIM>
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+let rate=4,paused=false,sel=null,tab=0,acc=0,last=performance.now(),drops=Array.from({length:120},()=>[Math.random()*W,Math.random()*H]);
+const SPEEDS=[['Pause',0],['1×',4],['5×',20],['20×',80],['60×',240]];
+const sp=document.getElementById('speed');
+const drawSpeed=()=>sp.innerHTML=SPEEDS.map(([l,v])=>`<button type="button" data-r="${v}" aria-pressed="${(v===0?paused:!paused&&v===rate)}">${l}</button>`).join('');
+drawSpeed();
+sp.onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;const v=+b.dataset.r;if(v===0)paused=!paused;else{rate=v;paused=false}drawSpeed()};
+document.getElementById('legend').innerHTML=[['Café','cafe'],['Market','market'],['Library','library'],['Mill Works','works'],['Velvet Room','bar'],['Not working','none']].map(([n,k])=>`<span style="--c:${JOBCOL[k]}"><i></i>${n}</span>`).join('')+'<span>Tap anyone on the map to follow them.</span>';
+function size(){const r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1;cv.width=Math.round(r.width*d);cv.height=Math.round(r.width*H/W*d)}
+const ro=new ResizeObserver(size);ro.observe(cv);
+function draw(){
+ const sc=cv.width/W;ctx.setTransform(sc,0,0,sc,0,0);const h=hour(S.t);
+ ctx.fillStyle='#e8dcc0';ctx.fillRect(0,0,W,H);
+ ctx.fillStyle='#d6c49f';ctx.fillRect(0,165,W,38);ctx.fillRect(0,480,W,46);ctx.fillRect(510,0,26,H);ctx.fillRect(760,150,22,370);
+ ctx.strokeStyle='#efe4cc';ctx.setLineDash([14,12]);ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,184);ctx.lineTo(W,184);ctx.moveTo(0,503);ctx.lineTo(W,503);ctx.stroke();ctx.setLineDash([]);
+ for(const l of L){
+  ctx.fillStyle='#0000001f';ctx.fillRect(l.x+5,l.y+6,l.w,l.h);
+  if(l.type==='park'){ctx.fillStyle='#9db07f';ctx.fillRect(l.x,l.y,l.w,l.h);ctx.fillStyle='#7f9a66';for(let i=0;i<9;i++){ctx.beginPath();ctx.arc(l.x+25+(i*67)%(l.w-40),l.y+25+(i*41)%(l.h-50),14,0,7);ctx.fill()}
+   ctx.fillStyle='#bcd3cf';ctx.beginPath();ctx.arc(l.x+l.w/2,l.y+l.h/2+8,28,0,7);ctx.fill();ctx.strokeStyle='#efe4cc';ctx.lineWidth=4;ctx.stroke()}
+  else{ctx.fillStyle=l.type==='home'?'#c9a27a':l.col;ctx.fillRect(l.x,l.y,l.w,l.h);ctx.fillStyle='#ffffff26';ctx.fillRect(l.x,l.y,l.w,8);
+   const lit=l.type==='home'?people.some(p=>p.loc===l.id&&p.phase==='do'&&p.act!=='sleep'):isOpen(l,h)&&(!l.shift||people.some(p=>p.loc===l.id&&p.act==='work'&&p.phase==='do'));
+   ctx.fillStyle=lit?'#f6dc8c':'#00000033';for(let i=0;i<4;i++)ctx.fillRect(l.x+12+i*((l.w-34)/3),l.y+l.h-22,12,10)}
+  ctx.fillStyle='#2b211b';ctx.font='600 17px "Barlow Condensed", sans-serif';ctx.fillText(l.name.toUpperCase(),l.x+8,l.y+26);
+  if(l.closed){ctx.save();ctx.translate(l.x+l.w/2,l.y+l.h/2+10);ctx.rotate(-.18);ctx.strokeStyle='#8e2f2a';ctx.lineWidth=4;ctx.strokeRect(-70,-18,140,36);ctx.fillStyle='#8e2f2a';ctx.font='26px "Alfa Slab One", serif';ctx.textAlign='center';ctx.fillText('SHUT DOWN',0,9);ctx.restore()}
+  else if(l.open&&!isOpen(l,h)){ctx.fillStyle='#2b211bcc';ctx.font='15px "Special Elite", monospace';ctx.fillText('CLOSED',l.x+8,l.y+44)}
+ }
+ if(sel){ctx.lineWidth=2;for(const q of people){const r=relOf(sel,q);if(q!==sel&&Math.abs(r)>=25){ctx.strokeStyle=r>0?'#d9a441':'#8e2f2a';ctx.setLineDash(r>0?[]:[6,5]);ctx.beginPath();ctx.moveTo(sel.x,sel.y);ctx.lineTo(q.x,q.y);ctx.stroke()}}ctx.setLineDash([])}
+ for(const p of people){
+  const sleeping=p.phase==='do'&&p.act==='sleep';
+  ctx.globalAlpha=sleeping?.45:1;ctx.fillStyle=p.col;ctx.strokeStyle='#2b211b';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(p.x,p.y,sel===p?10:8,0,7);ctx.fill();ctx.stroke();ctx.globalAlpha=1;
+  if(sel===p){ctx.strokeStyle='#2b211b';ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,16,0,7);ctx.stroke();ctx.font='700 17px "Barlow Condensed", sans-serif';const tw=ctx.measureText(p.name).width;ctx.fillStyle='#2b211b';ctx.fillRect(p.x-tw/2-6,p.y-40,tw+12,22);ctx.fillStyle='#efe4cc';ctx.fillText(p.name,p.x-tw/2,p.y-24)}
+ }
+ const dark=h<5||h>=21?.5:h<7?.5-(h-5)*.25:h>=19?(h-19)*.25:0;
+ if(dark>0){ctx.fillStyle=`rgba(40,18,40,${dark})`;ctx.fillRect(0,0,W,H)}
+ if(S.rain){ctx.strokeStyle='#e8f0f2aa';ctx.lineWidth=1.5;ctx.beginPath();for(const d of drops){ctx.moveTo(d[0],d[1]);ctx.lineTo(d[0]-6,d[1]+18);d[1]+=paused?0:14;d[0]-=paused?0:4;if(d[1]>H){d[1]=-20;d[0]=Math.random()*W+60}}ctx.stroke()}
+}
+const tabEl=document.getElementById('tab');let lastPanel=0;
+const bars=p=>Object.entries({Hunger:p.nd.hunger,Energy:p.nd.energy,Social:p.nd.social,Fun:p.nd.fun}).map(([k,v])=>`<span>${k}</span><div class="bar" style="--c:${v<25?'#8e2f2a':v<55?'#d9a441':'#3f7f7a'}"><i style="width:${v}%"></i></div><span>${Math.round(v)}</span>`).join('');
+const mood=p=>{const a=(p.nd.hunger+p.nd.energy+p.nd.social+p.nd.fun)/4;return a>70?'Thriving':a>50?'Fine':a>30?'Struggling':'Miserable'};
+function panel(){
+ document.getElementById('time').textContent=clock(S.t);document.getElementById('wx').textContent=S.rain?'Raining':hour(S.t)>=21||hour(S.t)<6?'Clear night':'Clear';
+ if(tab===3){if(!godDrawn){tabEl.innerHTML=godHTML();godDrawn=true}return}
+ let html='';
+ if(tab===0)html=S.feed.length?`<ul class="feed">${S.feed.slice(0,40).map(f=>`<li style="--c:${f.c}"><time>${clock(f.t)}</time>${esc(f.txt)}</li>`).join('')}</ul>`:'<p class="empty">The city is waking up. Speed up time and watch what happens.</p>';
+ if(tab===1&&!sel)html=`<div class="plist">${people.map(p=>`<button class="pr" type="button" data-p="${p.i}" style="--c:${p.col}"><span class="dot"></span><span>${esc(p.name)}<small>${esc(p.thought)}</small></span><span><small>${mood(p)}</small><div class="bar" style="--c:#3f7f7a"><i style="width:${(p.nd.hunger+p.nd.energy+p.nd.social+p.nd.fun)/4}%"></i></div></span></button>`).join('')}</div>`;
+ if(tab===1&&sel){const p=sel,rels=people.filter(q=>q!==p&&Math.abs(relOf(p,q))>=15).sort((a,b)=>relOf(p,b)-relOf(p,a));
+  html=`<div class="card"><button class="back" type="button" data-back>← Everyone</button>
+  <div><p class="lab">${p.job==='none'?'Not working':LOC[p.job].name} · lives in ${LOC[p.home].name}</p><h2>${esc(p.name)}</h2></div>
+  <p class="thought">${p.phase==='walk'?'On the way. ':''}${esc(p.thought)}</p>
+  <div class="needs">${bars(p)}<span>Money</span><span></span><span class="n">$${p.money}</span></div>
+  <p class="lab">Personality</p><p style="margin:0">${p.soc>.6?'Sociable':p.soc<.35?'Private':'Easygoing'}, ${p.dil>.75?'hard-working':p.dil<.5?'work-shy':'reliable'}, ${p.fru>.6?'careful with money':p.fru<.35?'big spender':'sensible'}, ${p.owl>.6?'night owl':p.owl<.35?'early bird':'normal hours'}.</p>
+  <p class="lab">People</p>${rels.length?`<div class="rel">${rels.map(q=>{const r=relOf(p,q);return `<span style="--c:${r>=40?'#d9a441':r<=-25?'#8e2f2a':'#c9b897'}">${esc(q.name)} · ${r>=40?'friend':r<=-25?'rival':r>0?'friendly':'cool'}</span>`}).join('')}</div>`:'<p class="empty" style="margin:0">Hasn\'t really met anyone yet.</p>'}
+  <p class="lab">Remembers</p>${p.mem.length?`<ol class="mem">${p.mem.map(m=>`<li>${clock(m.t).split(' · ')[1]}, ${esc(m.txt)}</li>`).join('')}</ol>`:'<p class="empty" style="margin:0">Nothing yet.</p>'}</div>`}
+ if(tab===2)html=S.papers.length?S.papers.slice(0,3).map(pp=>`<div class="gz" style="margin-bottom:14px"><div class="mast">The Port Lucien Daily</div><div class="dl"><span>Day ${pp.day}</span><span>Price 5¢</span></div><h3>${esc(pp.hl)}</h3>${pp.st.map(([a,b])=>`<article><h4>${esc(a)}</h4><p>${esc(b)}</p></article>`).join('')}</div>`).join(''):'<p class="empty">The first paper prints at midnight. Try 60× speed.</p>';
+ tabEl.innerHTML=html;
+}
+let gA=0,gB=1,gBiz='cafe',godDrawn=false;
+const opt=(i,v)=>`<option value="${i}" ${i===v?'selected':''}>${esc(people[i].name)}</option>`;
+function godHTML(){const a=people[gA].name,biz=L.filter(l=>l.shift);
+ return `<div class="gm"><p class="thought" style="margin:0">You can see everything. Now you can touch it too. Tap someone on the map to choose them.</p>
+ <div class="gsec"><p class="lab">Chosen one</p><select id="gA" aria-label="Chosen person">${people.map((_,i)=>opt(i,gA)).join('')}</select>
+ <div class="pw"><button type="button" class="mu" data-g="cash">Drop $100<small>On ${esc(a)}'s doorstep. No note.</small></button>
+ <button type="button" class="ox" data-g="wipe">Wipe savings<small>${esc(a)} loses every cent.</small></button>
+ <button type="button" class="ox" data-g="rumour">Start a rumour<small>The town turns on ${esc(a)}.</small></button>
+ <button type="button" data-g="follow">Follow<small>Open ${esc(a)}'s file.</small></button></div></div>
+ <div class="gsec"><p class="lab">Bring two people together</p><div class="two"><select id="gA2" aria-label="First person">${people.map((_,i)=>opt(i,gA)).join('')}</select><select id="gB" aria-label="Second person">${people.map((_,i)=>opt(i,gB)).join('')}</select></div>
+ <div class="pw"><button type="button" class="mu" data-g="meet" style="grid-column:1/-1">Make them meet<small>Both feel a sudden urge to go to the Velvet Room (or the park if it's shut). Drinks on fate.</small></button></div></div>
+ <div class="gsec"><p class="lab">The city</p><div class="pw"><button type="button" data-g="rain">${S.rain?'Stop the rain':'Make it rain'}<small>${S.rain?'Clear skies, instantly.':'Ruin everyone\'s park plans.'}</small></button>
+ <button type="button" class="mu" data-g="party">Throw a party<small>Fountain Park, next 3 hours.</small></button></div>
+ <select id="gBiz" aria-label="Business">${biz.map(l=>`<option value="${l.id}" ${l.id===gBiz?'selected':''}>${esc(l.name)}${l.closed?' (shut)':''}</option>`).join('')}</select>
+ <div class="pw"><button type="button" class="ox" data-g="shut" style="grid-column:1/-1">${LOC[gBiz].closed?'Reopen':'Shut down'} ${esc(LOC[gBiz].name)}<small>${LOC[gBiz].closed?'Staff back to work, regulars return.':'Staff lose their wages, regulars lose their routine.'}</small></button></div></div>
+ <div class="gsec"><p class="lab">New arrival</p><input id="gName" placeholder="Their name" maxlength="16" aria-label="New resident's name">
+ <div class="two"><select id="gType" aria-label="Personality">${Object.keys(PRESET).map(k=>`<option>${k}</option>`).join('')}</select>
+ <select id="gJob" aria-label="Job"><option value="none">No job</option>${biz.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join('')}</select></div>
+ <div class="pw"><button type="button" class="mu" data-g="arrive" style="grid-column:1/-1">Bring them to town<small>Arrives by bus with $60 and a suitcase. ${people.length}/32 residents.</small></button></div></div></div>`}
+function godAct(k){
+ if(k==='follow'){sel=people[gA];setTab(1);return}
+ if(k==='cash')GOD.cash(gA);if(k==='wipe')GOD.wipe(gA);if(k==='rumour')GOD.rumour(gA);
+ if(k==='meet'&&!GOD.meet(gA,gB)){alertG('Pick two different people.');return}
+ if(k==='rain')GOD.rain();if(k==='party')GOD.party();if(k==='shut')GOD.shut(gBiz);
+ if(k==='arrive'){const n=document.getElementById('gName').value;if(!GOD.arrive(n,document.getElementById('gType').value,document.getElementById('gJob').value)){alertG('Port Lucien is full.');return}sel=people.at(-1)}
+ godDrawn=false;panel();alertG('Done. Watch the City desk.');
+}
+function alertG(t){const g=tabEl.querySelector('.gm .thought');if(g)g.textContent=t}
+tabEl.addEventListener('change',e=>{const id=e.target.id;if(id==='gA'||id==='gA2'){gA=+e.target.value;godDrawn=false;panel()}if(id==='gB')gB=+e.target.value;if(id==='gBiz'){gBiz=e.target.value;godDrawn=false;panel()}});
+function setTab(t){tab=t;godDrawn=false;document.querySelectorAll('#tabs button').forEach(x=>+x.dataset.t===t?x.setAttribute('aria-current','page'):x.removeAttribute('aria-current'));panel()}
+tabEl.onclick=e=>{const g=e.target.closest('[data-g]');if(g){godAct(g.dataset.g);return}const b=e.target.closest('[data-p]');if(b){sel=people[+b.dataset.p];panel()}if(e.target.closest('[data-back]')){sel=null;panel()}};
+document.getElementById('tabs').onclick=e=>{const b=e.target.closest('[data-t]');if(b)setTab(+b.dataset.t)};
+cv.addEventListener('click',e=>{const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*W,y=(e.clientY-r.top)/r.height*H;let best=null,bd=26;
+ for(const p of people){const d=Math.hypot(p.x-x,p.y-y);if(d<bd){bd=d;best=p}}
+ if(tab===3){if(best){gA=best.i;godDrawn=false;panel()}return}sel=best;if(best)setTab(1);else panel()});
+function frame(now){
+ const dt=Math.min(.1,(now-last)/1000);last=now;
+ if(!paused){acc+=dt*rate;let n=0;while(acc>=1&&n<400){step();acc--;n++}}
+ draw();if(now-lastPanel>400){panel();lastPanel=now}
+ requestAnimationFrame(frame);
+}
+size();for(const p of people)decide(p);panel();requestAnimationFrame(frame);
+}
+</script>
+</body>
+</html>

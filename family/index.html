@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Family</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Barlow+Condensed:wght@400;500;600;700&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Special+Elite&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<style>
+/* VOICE: a 1968 crime-family pause menu: dry, cinematic, a little cheeky.
+   IDEA: the game's case-file menu, where your group chat is the family under investigation.
+   PICTURE: painted pastel chapter strips with pinned Polaroids; each member becomes a dossier card.
+   COLOUR/TYPE: slate grey, bone white, muted pastel chapter colours; Alfa Slab headlines, Barlow Condensed menus, typewriter notes, newsprint front page.
+   LAYOUT: pipe nav, giant slab title, content, key-hint bar at the bottom. */
+:root{color-scheme:dark;--bg:#4d535c;--deep:#3a3f46;--panel:#434950;--bone:#dcd6c8;--mute:#a7a59c;--ok:#86b56f;--no:#c4524a;
+--c1:#e3b08f;--c2:#a58bb3;--c3:#93b38c;--c4:#8299b4;--c5:#d4c27c;--c6:#8cb8ae;--c7:#cf8f8a;--c8:#c8ad86;--c9:#b8b4a8}
+:root[data-theme=light],:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--bone);font:17px/1.5 "Barlow Condensed",Arial Narrow,sans-serif;overflow-x:clip;min-height:100vh}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.18;mix-blend-mode:overlay;
+background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.wrap{max-width:1240px;margin:0 auto;padding:clamp(20px,4vw,56px) max(5vw,16px) 110px}
+nav{display:flex;flex-wrap:wrap;gap:4px 0;align-items:center;font-size:clamp(16px,2.2vw,21px);letter-spacing:.06em;text-transform:uppercase}
+nav a{color:var(--mute);text-decoration:none;padding:10px 0;min-height:44px;display:inline-flex;align-items:center}
+nav a[aria-current]{color:var(--bone);font-weight:700}
+nav i{color:var(--mute);font-style:normal;padding:0 12px;opacity:.6}
+h1{font:400 clamp(52px,11vw,124px)/.9 "Alfa Slab One",Rockwell,serif;margin:14px 0 4px;color:var(--bone);letter-spacing:.01em;text-transform:uppercase}
+.sub{font-weight:600;font-size:clamp(17px,2vw,21px);letter-spacing:.05em;text-transform:uppercase;margin:0 0 28px;color:var(--bone)}
+.view{display:none}.view.on{display:block;animation:in .45s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.view.on{animation:none}}
+/* landing */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(20px,4vw,56px);align-items:center}
+.drop{background:var(--deep);border:2px dashed #6c727b;padding:26px;display:grid;gap:14px}
+.drop.over{border-color:var(--c5);background:#40454c}
+.drop p{margin:0;color:var(--mute);font-size:18px}
+.drop strong{color:var(--bone);font-size:24px;letter-spacing:.03em;text-transform:uppercase}
+.btns{display:flex;flex-wrap:wrap;gap:10px}
+.btn{font:600 19px "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;min-height:48px;padding:0 20px;border:0;cursor:pointer;background:var(--bone);color:#2b2f34;display:inline-flex;align-items:center;gap:8px}
+.btn.ghost{background:transparent;color:var(--bone);outline:1px solid #7a8089}
+.btn:focus-visible,nav a:focus-visible,.key:focus-visible,.mug:focus-within{outline:3px solid var(--c5);outline-offset:2px}
+.note{font-family:"Special Elite",monospace;font-size:15px;color:var(--mute)}
+.err{color:#f0a49c;font-family:"Special Elite",monospace;font-size:15px;min-height:1em}
+.art{width:100%;height:auto;display:block}
+/* dossiers */
+.stats{display:flex;flex-wrap:wrap;gap:8px 26px;margin:-10px 0 26px;color:var(--mute);font-size:19px}
+.stats b{color:var(--bone);font-weight:700}
+.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr));gap:18px}
+.file{display:grid;grid-template-columns:62px minmax(0,1fr);background:#e9e1cf;color:#2d2a25;box-shadow:0 10px 24px #0004;animation:in .5s ease both}
+.strip{background:var(--c);display:flex;flex-direction:column;align-items:center;padding-top:16px;gap:10px;color:#2d2a25}
+.strip svg{width:32px;height:32px}
+.strip span{writing-mode:vertical-rl;transform:rotate(180deg);font-weight:700;letter-spacing:.12em;font-size:14px;text-transform:uppercase;opacity:.75}
+.fbody{padding:18px 18px 16px;display:grid;gap:10px}
+.top{display:grid;grid-template-columns:104px minmax(0,1fr);gap:14px;align-items:start}
+.pol{background:#fbf8f0;padding:7px 7px 24px;box-shadow:0 4px 10px #0003;transform:rotate(-3deg);position:relative}
+.pol .ph{aspect-ratio:1;background:linear-gradient(160deg,#5d646d,#2f3439);display:grid;place-items:center;color:#e9e1cf;font:28px "Alfa Slab One",serif;overflow:hidden}
+.pol .ph img{width:100%;height:100%;object-fit:cover;filter:grayscale(.55) sepia(.25) contrast(1.05)}
+.pol small{position:absolute;bottom:4px;left:0;right:0;text-align:center;font:14px "Special Elite",monospace;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+.file h3{font:400 30px/1 "Alfa Slab One",serif;margin:2px 0 6px;text-transform:uppercase}
+.file .who{font:700 19px 'Barlow Condensed',sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#6b5f4f;background:transparent;border:0;border-bottom:1px dashed #b5a98f;padding:2px 0;width:100%;min-height:32px}
+.file .who:focus{outline:none;border-bottom:2px solid #2d2a25;color:#2d2a25}
+.file .why{margin:0;font-size:18px;line-height:1.3}
+.rap{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:#c9bfa9;border:1px solid #c9bfa9}
+.rap div{background:#efe8d8;padding:6px 8px}
+.rap b{display:block;font-size:22px;line-height:1.1;font-variant-numeric:tabular-nums}
+.rap span{font-size:14px;color:#6b5f4f}
+blockquote{margin:0;font:15px/1.4 "Special Elite",monospace;border-left:3px solid var(--c);padding:2px 0 2px 10px;color:#3c372f;overflow-wrap:anywhere}
+.mug{font-weight:600;font-size:15px;letter-spacing:.05em;text-transform:uppercase;color:#6b5f4f;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;justify-self:start}
+.mug input{position:absolute;opacity:0;width:1px;height:1px}
+/* front page */
+.paper{max-width:440px;margin:0 auto;aspect-ratio:9/16;background:#efe7d4;color:#1e1b17;padding:18px 18px 14px;box-shadow:0 18px 40px #0006;display:flex;flex-direction:column;gap:8px;font-family:"Old Standard TT",Georgia,serif;transform:rotate(-1deg);overflow:hidden;
+background-image:radial-gradient(#0000000d 1px,transparent 1.2px);background-size:4px 4px}
+.mast{font:clamp(32px,9vw,46px)/1 "UnifrakturMaguntia",serif;text-align:center}
+.dl{display:flex;justify-content:space-between;gap:6px;border-block:2px solid #1e1b17;padding:3px 0;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em}
+.dl span{white-space:nowrap}
+.hl{font:400 clamp(26px,7.6vw,38px)/1 "Alfa Slab One",serif;text-transform:uppercase;margin:4px 0 0;text-align:center;text-wrap:balance}
+.deck{font-style:italic;text-align:center;margin:0;font-size:15px}
+.pcols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px 14px;flex:1;border-top:1px solid #1e1b17;padding-top:8px;align-content:space-between;grid-auto-flow:dense}
+.pcols figure{margin:0;grid-row:span 2}
+.pcols article{border-top:1px solid #1e1b1740;padding-top:6px}
+.pcols .eoy{grid-column:1/-1;display:flex;align-items:center;gap:12px;border-top:2px solid #1e1b17}
+.pcols .eoy h4{margin:0}.pcols article p.emo{font-size:44px;line-height:1;margin:0}
+.pcols figure .pol{transform:rotate(2deg);filter:contrast(1.1)}
+.pcols figcaption{font-size:13px;font-style:italic;margin-top:8px;line-height:1.25}
+.pcols article h4{margin:0 0 2px;font-size:16px;line-height:1.1}
+.pcols article p{margin:0;font-size:13.5px;line-height:1.3}
+.emo{font-size:40px;line-height:1}
+.foot{text-align:center;font-size:12px;border-top:2px solid #1e1b17;padding-top:4px;letter-spacing:.06em;text-transform:uppercase}
+.tip{text-align:center;margin-top:24px}
+/* how to */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:18px}
+.card{background:var(--deep);padding:22px;border-top:6px solid var(--c)}
+.card h3{font:400 26px "Alfa Slab One",serif;margin:0 0 10px;text-transform:uppercase}
+.card ol{margin:0;padding-left:20px;font-size:19px}
+.card li{margin:4px 0}
+/* key bar */
+.keys{position:fixed;left:0;right:0;bottom:0;display:flex;gap:18px;padding:12px max(5vw,16px);background:linear-gradient(transparent,#2f3338cc 40%);z-index:2}
+.key{background:none;border:0;color:var(--bone);font:600 19px "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;display:flex;gap:8px;align-items:center;cursor:pointer;min-height:44px;padding:0}
+.key b{font-weight:700}.key .r{color:var(--no)}.key .g{color:var(--ok)}
+.empty{background:var(--deep);padding:26px;display:grid;gap:14px;justify-items:start;max-width:620px}
+@media(max-width:760px){.hero{grid-template-columns:minmax(0,1fr)}.hero .art{order:-1;max-height:300px}}
+@media(max-width:420px){.top{grid-template-columns:84px minmax(0,1fr)}.file h3{font-size:25px}.rap b{font-size:19px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav id="nav">
+    <a href="#files">Files</a><i>|</i><a href="#family">The Family</a><i>|</i><a href="#front">Front page</a><i>|</i><a href="#how">How to</a>
+  </nav>
+
+  <section class="view" id="v-files">
+    <h1>The Family</h1>
+    <p class="sub">Every member of your group chat, on file</p>
+    <div class="hero">
+      <div class="drop" id="drop">
+        <strong>Hand over the evidence</strong>
+        <p>Drop in a WhatsApp group chat export (.txt or .zip). Each member gets a case file and a role in the family.</p>
+        <div class="btns">
+          <label class="btn" for="up">Open chat export</label>
+          <input id="up" type="file" accept=".txt,.zip,text/plain,application/zip" hidden>
+          <button class="btn ghost" id="demo" type="button">Use sample family</button>
+        </div>
+        <p class="note">Your chat never leaves this device. Nothing is uploaded anywhere.</p>
+        <p class="err" id="err" role="status"></p>
+      </div>
+      <svg class="art" viewBox="0 0 560 420" role="img" aria-label="Painted chapter strips with pinned Polaroids">
+        <defs>
+          <filter id="paint"><feTurbulence type="fractalNoise" baseFrequency=".02 .4" numOctaves="2" seed="4"/><feDisplacementMap in="SourceGraphic" scale="9"/></filter>
+          <filter id="sh"><feDropShadow dx="0" dy="8" stdDeviation="8" flood-opacity=".35"/></filter>
+        </defs>
+        <g filter="url(#paint)" id="strips"></g>
+        <g filter="url(#sh)">
+          <g transform="translate(250 150) rotate(-8)">
+            <rect width="150" height="176" fill="#fbf8f0"/><rect x="10" y="10" width="130" height="130" fill="#3c4249"/>
+            <circle cx="75" cy="88" r="24" fill="#22262a"/><path d="M40 140c4-26 66-26 70 0z" fill="#22262a"/>
+            <path d="M42 68c10-4 56-4 66 0l-6-6c-6-16-48-16-54 0z" fill="#16191c"/>
+            <text x="75" y="164" text-anchor="middle" font-family="Special Elite" font-size="13" fill="#333">THE DON</text>
+          </g>
+          <g transform="translate(372 196) rotate(7)">
+            <rect width="140" height="164" fill="#fbf8f0"/><rect x="9" y="9" width="122" height="122" fill="#59606a"/>
+            <circle cx="70" cy="82" r="22" fill="#2f3439"/><path d="M36 131c4-24 64-24 68 0z" fill="#2f3439"/>
+            <text x="70" y="152" text-anchor="middle" font-family="Special Elite" font-size="13" fill="#333">THE GHOST</text>
+          </g>
+          <rect x="318" y="140" width="34" height="12" fill="#e8dcb0" opacity=".85" transform="rotate(-20 335 146)"/>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <section class="view" id="v-family">
+    <h1>The Family</h1>
+    <p class="sub" id="famsub">Case files</p>
+    <div id="famout"></div>
+  </section>
+
+  <section class="view" id="v-front">
+    <h1>Front page</h1>
+    <p class="sub">Screenshot it. Send it to the chat.</p>
+    <div id="frontout"></div>
+  </section>
+
+  <section class="view" id="v-how">
+    <h1>How to</h1>
+    <p class="sub">Get your chat out of WhatsApp</p>
+    <div class="steps">
+      <div class="card" style="--c:var(--c1)"><h3>iPhone</h3><ol><li>Open the group chat and tap the group name.</li><li>Scroll down, tap <b>Export chat</b>, then <b>Without media</b>.</li><li>Choose <b>Save to Files</b>.</li><li>Come back here, tap <b>Open chat export</b> and pick the .zip.</li></ol></div>
+      <div class="card" style="--c:var(--c3)"><h3>Android</h3><ol><li>Open the group chat and tap the three dots.</li><li>Tap <b>More</b>, then <b>Export chat</b>, then <b>Without media</b>.</li><li>Save it to your phone or Drive.</li><li>Come back here and open the .txt file.</li></ol></div>
+      <div class="card" style="--c:var(--c4)"><h3>The roles</h3><ol><li>Everyone gets exactly one role.</li><li>Roles go to whoever earns them most, from the Don down.</li><li>Tap <b>Add mugshot</b> on any file to pin a photo.</li></ol></div>
+    </div>
+  </section>
+</div>
+
+<div class="keys">
+  <button class="key" id="kb" type="button"><b class="r">B</b> Back</button>
+  <button class="key" id="ka" type="button"><b class="g">A</b> <span id="kal">Next</span></button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+{
+//P<
+const MEDIA=/(image|video|sticker|GIF|document|contact card) omitted|<Media omitted>|<attached:/i;
+const VOICE=/audio omitted|\.opus|PTT-/i;
+const DEL=/^(This message was deleted|You deleted this message)/i;
+const SYS=/end-to-end encrypted|created group|changed (the|this) group|changed the subject|joined using this group|security code changed|disappearing messages/i;
+const LAUGH=/😂|🤣|💀|\blo+l\b|\blm+f?a+o+|\bha(ha)+|\bdead\b/i;
+const EMO=/\p{Extended_Pictographic}/gu;
+const LOVE=/❤|🥰|😘|💕|💗|💖|💞|😍|🫶|\blove (you|u|ya)\b|\bily\b/i;
+function parse(txt){
+  txt=txt.replace(/[‎‏‪-‮﻿]/g,'').replace(/[  ]/g,' ');
+  const re=/^\[?(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4}),?\s+(\d{1,2})[:.](\d{2})(?:[:.]\d{2})?\s?([ap]\.?\s?m\.?)?\]?\s*(?:-\s*)?(.*)$/i;
+  const raw=[];
+  for(const line of txt.split(/\r?\n/)){
+    const m=line.match(re);
+    if(m)raw.push({a:+m[1],b:+m[2],y:+m[3],h:+m[4],mi:+m[5],ap:m[6],rest:m[7]});
+    else if(raw.length)raw[raw.length-1].rest+='\n'+line;
+  }
+  const dayFirst=raw.some(r=>r.a>12)?true:raw.some(r=>r.b>12)?false:true;
+  const out=[];
+  for(const r of raw){
+    const i=r.rest.indexOf(': ');
+    if(i<1||i>50)continue;
+    const s=r.rest.slice(0,i).trim(),x=r.rest.slice(i+2);
+    if(SYS.test(x))continue;
+    let h=r.h;if(r.ap){const pm=/p/i.test(r.ap);h=h%12+(pm?12:0)}
+    const y=r.y<100?2000+r.y:r.y,d=dayFirst?r.a:r.b,mo=dayFirst?r.b:r.a;
+    out.push({s,t:new Date(y,mo-1,d,h,r.mi),x});
+  }
+  return out;
+}
+function analyse(msgs){
+  const by=new Map(),hours=Array(24).fill(0),days={},emo={};
+  let lastDay='';
+  msgs.forEach((m,i)=>{
+    let s=by.get(m.s);
+    if(!s){s={name:m.s,n:0,words:0,media:0,voice:0,del:0,q:0,laugh:0,late:0,start:0,rep:0,repN:0,dbl:0,morn:0,love:0,emo:{},texts:[],last:0};by.set(m.s,s)}
+    s.n++;s.last=i;const x=m.x.trim();
+    const p=msgs[i-1],gap=p?(m.t-p.t)/6e4:0;
+    if(p&&p.s!==m.s&&gap<720){s.rep+=gap;s.repN++}
+    if(p&&p.s===m.s&&gap>20&&gap<720)s.dbl++;
+    const dk=m.t.toDateString();if(dk!==lastDay&&m.t.getHours()>=5){s.morn++;lastDay=dk}
+    if(LOVE.test(x))s.love++;
+    if(VOICE.test(x))s.voice++;
+    else if(MEDIA.test(x))s.media++;
+    else if(DEL.test(x))s.del++;
+    else{
+      s.words+=x.split(/\s+/).filter(Boolean).length;
+      if(x.includes('?'))s.q++;
+      if(LAUGH.test(x))s.laugh++;
+      for(const e of x.match(EMO)||[]){s.emo[e]=(s.emo[e]||0)+1;emo[e]=(emo[e]||0)+1}
+      if(x.length>14&&x.length<95&&!x.includes('\n'))s.texts.push(x);
+    }
+    const h=m.t.getHours();hours[h]++;if(h<5)s.late++;
+    if(i&&m.t-msgs[i-1].t>3*36e5)s.start++;
+    const k=m.t.toDateString();days[k]=(days[k]||0)+1;
+  });
+  const top=o=>Object.entries(o).sort((a,b)=>b[1]-a[1])[0];
+  const busy=top(days)||['',0];
+  return{members:[...by.values()].sort((a,b)=>b.n-a.n),total:msgs.length,first:msgs[0]?.t,last:msgs.at(-1)?.t,
+    peak:hours.indexOf(Math.max(...hours)),busy,emoji:top(emo),late:hours.slice(0,5).reduce((a,b)=>a+b,0)};
+}
+//P>
+const fmt=n=>n.toLocaleString('en-GB');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ICON={crown:'M3 19h18M4 16 3 7l5 4 4-7 4 7 5-4-1 9z',ghost:'M6 20V10a6 6 0 0 1 12 0v10l-2-2-2 2-2-2-2 2-2-2zM10 10h.01M14 10h.01',
+moon:'M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z',cam:'M4 8h4l2-3h4l2 3h4v11H4zM12 10.5a3 3 0 1 0 0 6 3 3 0 1 0 0-6',
+mic:'M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM5 11a7 7 0 0 0 14 0M12 18v3',erase:'M4 16l9-9 6 6-7 7H8zM9 20h11',
+book:'M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z',mag:'M10 4a6 6 0 1 0 0 12 6 6 0 1 0 0-12M15 15l5 5',
+smile:'M12 3a9 9 0 1 0 0 18 9 9 0 1 0 0-18M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01',clock:'M12 3a9 9 0 1 0 0 18 9 9 0 1 0 0-18M12 7v5l3 2',
+hat:'M3 16c3 2 15 2 18 0M6 15l1-7c2-2 3 0 5-1 2 1 3-1 5 1l1 7',bolt:'M13 2 4 14h7l-1 8 9-12h-7z',
+heart:'M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z',chat:'M4 5h12v8H8l-4 3zM9 16h7l4 3v-8h-2',
+sun:'M12 8a4 4 0 1 0 0 8 4 4 0 1 0 0-8M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5'};
+const ico=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${ICON[k]}"/></svg>`;
+let D=null;
+const pct=n=>Math.round(n/D.total*100)+'%';
+const avgRep=s=>s.repN?s.rep/s.repN:0;
+const mins=m=>m<1?'under a minute':m<60?`${Math.round(m)} min`:`${(m/60).toFixed(1)} hrs`;
+const ROLES=[
+ {t:'The Don',i:'crown',c:'--c1',m:s=>s.n,w:s=>`Runs this family. Sent ${pct(s.n)} of every message in the chat.`},
+ {t:'The Ghost',i:'ghost',c:'--c9',min:3,m:s=>1/s.n,w:s=>`Reads everything, says almost nothing. ${s.n} messages in total.`},
+ {t:'The Night Shift',i:'moon',c:'--c4',m:s=>s.late>=10&&s.late/s.n>=.03?s.late/s.n:0,w:s=>`${s.late} messages sent between midnight and 5am. Does not sleep.`},
+ {t:'The Cameraman',i:'cam',c:'--c6',m:s=>s.media>=10&&s.media/s.n>=.06?s.media/s.n:0,w:s=>`${s.media} photos, videos and stickers. Documents every crime.`},
+ {t:'The Radio',i:'mic',c:'--c7',m:s=>s.voice>=10?s.voice/s.n:0,w:s=>`${s.voice} voice notes. Refuses to type like a normal person.`},
+ {t:'The Cleaner',i:'erase',c:'--c2',m:s=>s.del>=5?s.del/s.n:0,w:s=>`Deleted ${s.del} messages. Leaves no evidence.`},
+ {t:'The Romantic',i:'heart',c:'--c7',m:s=>s.love>=10?s.love/s.n:0,w:s=>`${fmt(s.love)} hearts and love-yous sent. Soft for this chat.`},
+ {t:'The Sprinter',i:'bolt',c:'--c5',m:s=>s.repN>=10&&avgRep(s)<30?1/(avgRep(s)+1):0,w:s=>`Replies in ${mins(avgRep(s))} on average. The phone never leaves their hand.`},
+ {t:'The Double Texter',i:'chat',c:'--c2',m:s=>s.dbl>=5?s.dbl/s.n:0,w:s=>`Double-texted ${s.dbl} times. Refuses to be left on read.`},
+ {t:'The Rooster',i:'sun',c:'--c5',m:s=>s.morn>=5?s.morn:0,w:s=>`Sent the first message of the day ${s.morn} times.`},
+ {t:'The Preacher',i:'book',c:'--c8',m:s=>s.words/s.n,w:s=>`Averages ${(s.words/s.n).toFixed(1)} words a message. Every text is a sermon.`},
+ {t:'The Detective',i:'mag',c:'--c5',m:s=>s.q/s.n,w:s=>`Asked ${s.q} questions. Always investigating.`},
+ {t:'The Hyena',i:'smile',c:'--c3',m:s=>s.laugh/s.n,w:s=>`Laughed ${s.laugh} times. The easiest audience in the city.`},
+ {t:'The Alarm Clock',i:'clock',c:'--c6',m:s=>s.start,w:s=>`Brought a dead chat back to life ${s.start} times.`}];
+function assign(members){
+  const free=new Set(members);
+  for(const r of ROLES){
+    if(r.min&&members.length<r.min)continue;
+    let best=null,bv=0;
+    for(const s of free){const v=r.m(s);if(v>bv){bv=v;best=s}}
+    if(best){best.role=r;free.delete(best)}
+  }
+  for(const s of free)s.role={t:'The Associate',i:'hat',c:'--c9',w:s=>`Keeps their head down. ${s.n} messages, no trouble so far.`};
+}
+const mugs={},alias={};
+const nm=s=>esc(alias[s.name]||s.name);
+const photo=(s,cls='')=>`<div class="pol ${cls}"><div class="ph">${mugs[s.name]?`<img src="${mugs[s.name]}" alt="">`:nm(s).trim().slice(0,1).toUpperCase()}</div><small>${nm(s)}</small></div>`;
+function renderFamily(){
+  const o=document.getElementById('famout'),sub=document.getElementById('famsub');
+  if(!D){o.innerHTML=emptyHTML();sub.textContent='No evidence yet';return}
+  const opts={day:'numeric',month:'short',year:'numeric'};
+  sub.textContent=`${D.members.length} members under investigation`;
+  o.innerHTML=`<div class="stats"><span><b>${fmt(D.total)}</b> messages</span><span><b>${D.first.toLocaleDateString('en-GB',opts)}</b> to <b>${D.last.toLocaleDateString('en-GB',opts)}</b></span>${D.emoji?`<span>Chat emoji <b>${D.emoji[0]}</b></span>`:''}<span class="note">Tap a name to rename it${D.members.some(s=>s.name==='You')?', starting with "You"':''}.</span></div>
+  <div class="files">${D.members.map((s,i)=>{const q=s.texts.length?s.texts[Math.floor(s.texts.length*.61)%s.texts.length]:'';const fe=Object.entries(s.emo).sort((a,b)=>b[1]-a[1])[0];
+  return `<article class="file" style="--c:var(${s.role.c});animation-delay:${i*.06}s"><div class="strip">${ico(s.role.i)}<span>File ${String(i+1).padStart(3,'0')}</span></div>
+  <div class="fbody"><div class="top">${photo(s)}<div><input class="who" value="${nm(s)}" data-r="${esc(s.name)}" aria-label="Rename ${nm(s)}" maxlength="30"><h3>${s.role.t}</h3><p class="why">${s.role.w(s)}</p></div></div>
+  <div class="rap"><div><b>${fmt(s.n)}</b><span>messages</span></div><div><b>${fmt(s.media)}</b><span>media</span></div><div><b>${s.repN?mins(avgRep(s)).replace('under a minute','<1 min'):'—'}</b><span>avg reply</span></div>
+  <div><b>${fmt(s.voice)}</b><span>voice notes</span></div><div><b>${fmt(s.dbl)}</b><span>double texts</span></div><div><b>${fe?fe[0]:'—'}</b><span>signature</span></div></div>
+  ${q?`<blockquote>Last known words: "${esc(q)}"</blockquote>`:''}
+  <label class="mug">+ Add mugshot<input type="file" accept="image/*" data-n="${esc(s.name)}"></label></div></article>`}).join('')}</div>`;
+}
+function renderFront(){
+  const o=document.getElementById('frontout');
+  if(!D){o.innerHTML=emptyHTML();return}
+  const don=D.members.find(s=>s.role.t==='The Don'),gh=D.members.find(s=>s.role.t==='The Ghost'),ns=D.members.find(s=>s.role.t==='The Night Shift');
+  const hr=h=>`${h%12||12}${h<12?'am':'pm'}`,bd=new Date(D.busy[0]),M=D.members,duo=M.length===2;
+  const span=Math.max(1,Math.round((D.last-D.first)/864e5));
+  const hl=duo?`${fmt(D.total)} messages in ${span} days`:D.late>D.total*.08?`${fmt(D.total)} messages. Nobody slept.`:`Group chat hits ${fmt(D.total)} messages`;
+  const st=[];
+  st.push(`<h4>Don controls ${pct(don.n)} of chat</h4><p>${nm(don)} sent ${fmt(don.n)} messages. Sources say they "barely use their phone".</p>`);
+  if(gh)st.push(`<h4>Ghost last seen ${fmt(D.total-1-gh.last)} messages ago</h4><p>${nm(gh)} has sent ${gh.n} messages. Police are not concerned.</p>`);
+  const reps=M.filter(s=>s.repN>=5).sort((a,b)=>avgRep(a)-avgRep(b));
+  if(reps.length>1){const a=reps[0],b=reps.at(-1),close=avgRep(b)-avgRep(a)<3;st.push(close?`<h4>Reply race too close to call</h4><p>${nm(a)} averages ${mins(avgRep(a))}, ${nm(b)} ${mins(avgRep(b))}. Officials demand a rematch.</p>`:`<h4>Fastest hands in town</h4><p>${nm(a)} replies in ${mins(avgRep(a))}. ${nm(b)} leaves people waiting ${mins(avgRep(b))}.</p>`)}
+  const dt=[...M].sort((a,b)=>b.dbl-a.dbl)[0];
+  if(dt.dbl>=5)st.push(`<h4>Double-text scandal</h4><p>${nm(dt)} double-texted ${fmt(dt.dbl)} times. Investigation ongoing.</p>`);
+  const lv=M.reduce((a,s)=>a+s.love,0),lt=[...M].sort((a,b)=>b.love-a.love)[0];
+  if(lv>=10)st.push(`<h4>Romance report</h4><p>${fmt(lv)} hearts and love-yous exchanged. ${nm(lt)} sent ${fmt(lt.love)} of them.</p>`);
+  st.push(`<h4>Chat peaks at ${hr(D.peak)}</h4><p>Busiest day on record: ${bd.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}, with ${fmt(D.busy[1])} messages.</p>`);
+  if(ns)st.push(`<h4>Night shift confirmed</h4><p>${nm(ns)} sent ${ns.late} messages after midnight.</p>`);
+  o.innerHTML=`<div class="paper" id="paper"><div class="mast">The Family Gazette</div>
+  <div class="dl"><span>Vol. I</span><span>${D.last.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</span><span>Price: one reply</span></div>
+  <h2 class="hl">${esc(hl)}</h2><p class="deck">${duo?`${nm(M[0])} and ${nm(M[1])} questioned. Neither is innocent.`:`${M.length} members questioned. Nobody is innocent.`}</p>
+  <div class="pcols"><figure>${photo(don)}<figcaption>${nm(don)}, pictured, denies running the chat.</figcaption></figure>
+  ${st.slice(0,5).map(s=>`<article>${s}</article>`).join('')}
+  ${D.emoji?`<article class="eoy"><h4>Emoji of the year</h4><p class="emo">${D.emoji[0]}</p><p>Used ${fmt(D.emoji[1])} times.</p></article>`:''}
+  </div><div class="foot">Made with The Family · your chat never left your phone</div></div>
+  <p class="tip note">Screenshot the page above and drop it in the group chat.</p>`;
+}
+const emptyHTML=()=>`<div class="empty"><p class="note">The files are empty. Hand over a chat export, or open the sample family to see how it works.</p><div class="btns"><a class="btn" href="#files">Open chat export</a><button class="btn ghost" type="button" data-demo>Use sample family</button></div></div>`;
+function load(txt){
+  const err=document.getElementById('err');
+  const msgs=parse(txt);
+  if(msgs.length<10){err.textContent='That file does not look like a WhatsApp chat export. Check the How to page.';return}
+  D=analyse(msgs);
+  if(D.members.length<2){err.textContent='Only one person found. The Family needs a group chat.';D=null;return}
+  err.textContent='';assign(D.members);renderFamily();renderFront();location.hash='family';
+}
+async function readFile(f){
+  const err=document.getElementById('err');err.textContent='Reading the evidence…';
+  try{
+    if(/\.zip$/i.test(f.name)||f.type.includes('zip')){
+      const z=await JSZip.loadAsync(f);const t=Object.values(z.files).find(e=>/\.txt$/i.test(e.name));
+      if(!t){err.textContent='No chat .txt found inside that zip.';return}
+      load(await t.async('string'));
+    }else load(await f.text());
+  }catch(e){err.textContent='Could not read that file. Try exporting the chat again.'}
+}
+function sample(){
+  let seed=7;const r=()=>(seed=(seed*16807)%2147483647)/2147483647;
+  const P=[['Tunde',30],['Kemi',20],['Jay',17],['Aisha',15],['Marcus',12],['Zara',6]];
+  const short=['who is outside tonight?','lmaooo 😂😂','nah because why would you do that','omw','bro 💀','are we still doing pres?','send the pics','haha','see you at 8','who took my charger','facts','😭😭','LOL','wait what happened','link?','I\'m crying 😂','who is cooking sunday?','that is crazy','be honest is it giving','we move 🙏'];
+  const long=['Listen I have been thinking about this properly and I genuinely believe we need a group holiday before summer, everyone just needs to commit','Not to be dramatic but the jollof at the last function was a crime and someone needs to be held accountable for it','Can we please agree on one plan before Friday because last time we spent two hours deciding and ended up at the same place'];
+  const tot=P.reduce((a,p)=>a+p[1],0),pick=()=>{let v=r()*tot;for(const p of P){v-=p[1];if(v<=0)return p[0]}return 'Tunde'};
+  let t=new Date(2026,8,25,10,0).getTime(),lines=[];
+  for(let i=0;i<1400;i++){
+    t+=Math.floor(-Math.log(1-r())*55)*60e3+30e3;
+    const d=new Date(t),h=d.getHours();
+    if(h<8&&h>1&&r()<.85){t+=(8-h)*36e5;continue}
+    let s=h<5&&r()<.6?'Jay':pick(),x=short[Math.floor(r()*short.length)];
+    const q=r();
+    if(s==='Kemi'&&q<.35)x='audio omitted';else if(s==='Aisha'&&q<.3)x='image omitted';else if(s==='Tunde'&&q<.07)x='This message was deleted';
+    else if(s==='Marcus'&&q<.45)x=long[Math.floor(r()*long.length)];else if(q<.04)x='sticker omitted';
+    const p=n=>String(n).padStart(2,'0');
+    lines.push(`[${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()}, ${p(h)}:${p(d.getMinutes())}:${p(d.getSeconds())}] ${s}: ${x}`);
+  }
+  return lines.join('\n');
+}
+const ORDER=['files','family','front','how'];
+function route(){
+  const v=ORDER.includes(location.hash.slice(1))?location.hash.slice(1):'files';
+  for(const k of ORDER)document.getElementById('v-'+k).classList.toggle('on',k===v);
+  document.querySelectorAll('nav a').forEach(a=>a.getAttribute('href')==='#'+v?a.setAttribute('aria-current','page'):a.removeAttribute('aria-current'));
+  document.getElementById('kal').textContent=v==='files'&&!D?'Sample family':'Next';
+  if(v==='family')renderFamily();if(v==='front')renderFront();
+  window.scrollTo(0,0);
+}
+document.getElementById('strips').innerHTML=['--c1','--c2','--c3','--c4','--c5','--c6','--c7'].map((c,i)=>`<rect x="${10+i*78}" y="${20+(i%2)*14}" width="70" height="${360-(i%3)*20}" fill="var(${c})"/>`).join('');
+document.getElementById('up').addEventListener('change',e=>{const f=e.target.files[0];if(f)readFile(f);e.target.value=''});
+const drop=document.getElementById('drop');
+drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('over')});
+drop.addEventListener('dragleave',()=>drop.classList.remove('over'));
+drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('over');const f=e.dataTransfer.files[0];if(f)readFile(f)});
+document.getElementById('demo').addEventListener('click',()=>load(sample()));
+document.addEventListener('click',e=>{if(e.target.closest('[data-demo]'))load(sample())});
+document.addEventListener('change',e=>{const r=e.target.closest('input[data-r]');if(r){alias[r.dataset.r]=r.value.trim()||r.dataset.r;renderFamily();return}const i=e.target.closest('input[data-n]');if(i&&i.files[0]){mugs[i.dataset.n]=URL.createObjectURL(i.files[0]);renderFamily()}});
+document.getElementById('kb').addEventListener('click',()=>{const i=ORDER.indexOf(location.hash.slice(1));location.hash=ORDER[Math.max(0,i-1)]||'files'});
+document.getElementById('ka').addEventListener('click',()=>{const i=Math.max(0,ORDER.indexOf(location.hash.slice(1)));if(!D&&i===0){load(sample());return}location.hash=ORDER[Math.min(ORDER.length-1,i+1)]});
+window.addEventListener('hashchange',route);
+route();
+}
+</script>
+</body>
+</html>
